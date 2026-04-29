@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:leaper/core/styles/text_styles/font_sizes.dart';
+import 'package:leaper/core/styles/text_styles/input_styles.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,6 +12,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.white,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+    );
     return MaterialApp(
       home: const MyHomePage(),
       theme: ThemeData(
@@ -49,19 +59,78 @@ class _MyHomePageState extends State<MyHomePage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text("Image Placeholder Here"),
-                          Text("Login"),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              hintText: "Username or Email",
+                          Text(
+                            "Login",
+                            style: TextStyle(
+                              fontSize: FontSizes.veryLarge,
+                              color: Color(0xFF787880),
                             ),
                           ),
-                          TextFormField(
-                            decoration: InputDecoration(hintText: "Password"),
-                            obscureText: true,
+                          Padding(padding: EdgeInsets.only(top: 12)),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xFFFFFFFF),
+                              borderRadius: BorderRadius.circular(32),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0x0D000000),
+                                  blurRadius: 24,
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 12, right: 12),
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  icon: Icon(Icons.person),
+                                  hintText: "Username or Email",
+                                  border: InputBorder.none,
+                                  hintStyle: InputStyle.hintText,
+                                ),
+                                style: InputStyle.inputText,
+                              ),
+                            ),
                           ),
+                          Padding(padding: EdgeInsets.only(top: 8)),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xFFFFFFFF),
+                              borderRadius: BorderRadius.circular(32),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0x0D000000),
+                                  blurRadius: 24,
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 12, right: 12),
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  icon: Icon(Icons.lock),
+                                  hintText: "Password",
+                                  border: InputBorder.none,
+                                  hintStyle: InputStyle.hintText,
+                                ),
+                                style: InputStyle.inputText,
+                                obscureText: true,
+                              ),
+                            ),
+                          ),
+                          Padding(padding: EdgeInsets.only(top: 8)),
                           ElevatedButton(
+                            // TODO: Handle Input
                             onPressed: () => {},
-                            child: Text("Login"),
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 96,
+                                vertical: 8,
+                              ),
+                            ),
+                            child: Text(
+                              "Login",
+                              style: TextStyle(fontSize: FontSizes.large),
+                            ),
                           ),
                         ],
                       ),
