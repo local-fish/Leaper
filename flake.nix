@@ -17,7 +17,7 @@
 			platformVersions = [ "35" "34" "33" "28" ];
 			abiVersions = [ "x86_64" "armeabi-v7a" "arm64-v8a" ];
 			includeNDK = true;
-			ndkVersions = [ "26.3.11579264" ];
+			ndkVersions = [ "26.3.11579264" "27.0.12077973" ];
 			cmakeVersions = [ "3.22.1" ];
 		};
 		androidSdk = androidComposition.androidsdk;
