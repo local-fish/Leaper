@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
+import 'package:leaper/pages/dashboard/schedule.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -13,7 +13,15 @@ class _DashboardState extends State<Dashboard> {
   //TODO: Add API Call OR Riverpod Listener
   String name = "Null";
 
+  // Navigation Stuff
+
+  void toSchedule() {
+    Navigator.pushNamed(context, '/schedule');
+    print("I mean it fired");
+  }
+
   @override
+  // Note: This page is part of MainLayout so it doesn't use ScaffoldBackground
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
@@ -53,7 +61,7 @@ class _DashboardState extends State<Dashboard> {
                   children: [
                     DashboardButton(
                       icon: Icons.calendar_today,
-                      onPressed: () {},
+                      onPressed: toSchedule,
                     ),
                     Padding(padding: EdgeInsets.only(top: 8)),
                     Text("Schedule"),

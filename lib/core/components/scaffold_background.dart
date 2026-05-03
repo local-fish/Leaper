@@ -21,7 +21,8 @@ class ScaffoldBackground extends StatelessWidget {
             children: [
               child,
               // Bottom Bar
-              Positioned(bottom: 16, left: 16, right: 16, child: bottomBar!),
+              if (bottomBar != null)
+                Positioned(bottom: 16, left: 16, right: 16, child: bottomBar!),
             ],
           ),
         ),

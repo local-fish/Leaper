@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
-import 'package:leaper/pages/roots/dashboard.dart';
+import 'package:leaper/pages/dashboard/dashboard.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});

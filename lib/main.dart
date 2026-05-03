@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:leaper/core/components/main_layout.dart';
-import 'package:leaper/pages/roots/dashboard.dart';
+import 'package:leaper/core/routes.dart';
 import 'package:leaper/pages/login_page.dart';
 import 'package:leaper/providers/auth_provider.dart';
 
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       ),
     );
     return MaterialApp(
-      home: AuthCheck(),
+      routes: routes,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF929EC3)),
       ),
@@ -41,7 +41,15 @@ class AuthCheck extends ConsumerWidget {
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, st) => LoginPage(),
-      data: (token) => token != null ? MainLayout() : LoginPage(),
+      data: (token) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacementNamed(
+            context,
+            token != null ? '/main' : '/login',
+          );
+        });
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      },
     );
   }
 }
