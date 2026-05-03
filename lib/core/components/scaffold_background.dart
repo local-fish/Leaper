@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class ScaffoldBackground extends StatelessWidget {
   final Widget child;
-  const ScaffoldBackground({super.key, required this.child});
+  final Widget? bottomBar;
+  const ScaffoldBackground({super.key, required this.child, this.bottomBar});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,13 @@ class ScaffoldBackground extends StatelessWidget {
               colors: <Color>[Color(0xFFE6E6E6), Color(0xFF949EC3)],
             ),
           ),
-          child: child,
+          child: Stack(
+            children: [
+              child,
+              // Bottom Bar
+              Positioned(bottom: 16, left: 16, right: 16, child: bottomBar!),
+            ],
+          ),
         ),
       ),
     );

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:leaper/pages/dashboard.dart';
+import 'package:leaper/core/components/main_layout.dart';
+import 'package:leaper/pages/roots/dashboard.dart';
 import 'package:leaper/pages/login_page.dart';
 import 'package:leaper/providers/auth_provider.dart';
 
@@ -40,7 +41,7 @@ class AuthCheck extends ConsumerWidget {
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, st) => LoginPage(),
-      data: (token) => token != null ? Dashboard() : LoginPage(),
+      data: (token) => token != null ? MainLayout() : LoginPage(),
     );
   }
 }
