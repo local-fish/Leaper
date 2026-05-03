@@ -17,7 +17,6 @@ class _DashboardState extends State<Dashboard> {
 
   void toSchedule() {
     Navigator.pushNamed(context, '/schedule');
-    print("I mean it fired");
   }
 
   @override
