@@ -25,6 +25,14 @@ class _ScheduleState extends State<Schedule> {
     DateTime.utc(2026, 5, 7): EventType.exam,
     DateTime.utc(2026, 5, 10): EventType.classEvent,
   };
+  final List<String> items = [
+    'Math',
+    'Science',
+    'English',
+    'this thing',
+    'that thing',
+    'wow',
+  ];
   @override
   Widget build(BuildContext context) {
     return ScaffoldBackground(
@@ -107,22 +115,31 @@ class _ScheduleState extends State<Schedule> {
                     ),
                     child: Padding(
                       padding: EdgeInsets.only(top: 8, left: 20, right: 20),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            DateFormat(
-                              'dd MMMM yyyy',
-                            ).format(_selectedDay ?? _focusedDay),
-                            style: GoogleFonts.montserrat(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: FontSizes.medium,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              DateFormat(
+                                'dd MMMM yyyy',
+                              ).format(_selectedDay ?? _focusedDay),
+                              style: GoogleFonts.montserrat(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: FontSizes.medium,
+                              ),
                             ),
-                          ),
-                          // TODO: Add Content of Each Day
-                        ],
+                            // TODO: Add Content of Each Day, Simply construct the EventCard class, and then replace the Text in the bottom function
+                            ListView(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              children: items
+                                  .map((item) => Text(item))
+                                  .toList(),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
