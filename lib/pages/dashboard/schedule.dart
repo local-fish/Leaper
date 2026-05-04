@@ -7,9 +7,8 @@ import 'package:leaper/core/components/back_nav_heading.dart';
 import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
+import 'package:leaper/models/schedule_data.dart';
 import 'package:table_calendar/table_calendar.dart';
-
-enum EventType { classEvent, exam }
 
 class Schedule extends StatefulWidget {
   const Schedule({super.key});
@@ -23,7 +22,7 @@ class _ScheduleState extends State<Schedule> {
   // TODO: Change to API
   final Map<DateTime, EventType> _events = {
     DateTime.utc(2026, 5, 7): EventType.exam,
-    DateTime.utc(2026, 5, 10): EventType.classEvent,
+    DateTime.utc(2026, 5, 10): EventType.session,
   };
   final List<String> items = [
     'Math',
@@ -158,13 +157,13 @@ class _ScheduleState extends State<Schedule> {
 
     Color highlight = switch (events) {
       EventType.exam => Color(0xFF9E6666),
-      EventType.classEvent => Color(0xFF4A5580),
+      EventType.session => Color(0xFF4A5580),
       null => Color(0xFFADB5D5),
     };
 
     Color textColor = switch (events) {
       EventType.exam => Colors.black,
-      EventType.classEvent => Colors.white,
+      EventType.session => Colors.white,
       null => Colors.white,
     };
     // Special Case for Selected Day
