@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:leaper/core/components/back_nav_heading.dart';
 import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
@@ -26,11 +29,12 @@ class _ScheduleState extends State<Schedule> {
   Widget build(BuildContext context) {
     return ScaffoldBackground(
       child: Center(
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            children: [
-              HeadingCard(
+        child: Column(
+          children: [
+            BackNavHeading(heading: "Schedule"),
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: HeadingCard(
                 heading: Padding(
                   padding: EdgeInsetsGeometry.only(left: 16),
                   child: Text(
@@ -78,8 +82,54 @@ class _ScheduleState extends State<Schedule> {
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+            SizedBox(height: 8),
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(32),
+                  topRight: Radius.circular(32),
+                ),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Color(0x335A5E75),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(32),
+                        topRight: Radius.circular(32),
+                      ),
+                      border: Border(
+                        top: BorderSide(color: Colors.white, width: 1),
+                        left: BorderSide(color: Colors.white, width: 1),
+                        right: BorderSide(color: Colors.white, width: 1),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 8, left: 20, right: 20),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            DateFormat(
+                              'dd MMMM yyyy',
+                            ).format(_selectedDay ?? _focusedDay),
+                            style: GoogleFonts.montserrat(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: FontSizes.medium,
+                            ),
+                          ),
+                          // TODO: Add Content of Each Day
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
