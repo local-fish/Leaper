@@ -15,10 +15,6 @@ class _DashboardState extends State<Dashboard> {
 
   // Navigation Stuff
 
-  void toSchedule() {
-    Navigator.pushNamed(context, '/schedule');
-  }
-
   @override
   // Note: This page is part of MainLayout so it doesn't use ScaffoldBackground
   Widget build(BuildContext context) {
@@ -60,7 +56,9 @@ class _DashboardState extends State<Dashboard> {
                   children: [
                     DashboardButton(
                       icon: Icons.calendar_today,
-                      onPressed: toSchedule,
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/schedule');
+                      },
                     ),
                     Padding(padding: EdgeInsets.only(top: 8)),
                     Text("Schedule"),
@@ -68,7 +66,12 @@ class _DashboardState extends State<Dashboard> {
                 ),
                 Column(
                   children: [
-                    DashboardButton(icon: Icons.view_kanban, onPressed: () {}),
+                    DashboardButton(
+                      icon: Icons.view_kanban,
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/grades');
+                      },
+                    ),
                     Padding(padding: EdgeInsets.only(top: 8)),
                     Text("Grade"),
                   ],
