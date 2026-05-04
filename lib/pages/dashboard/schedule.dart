@@ -35,6 +35,7 @@ class _ScheduleState extends State<Schedule> {
   ];
   @override
   Widget build(BuildContext context) {
+    DateTime activeDate = _selectedDay ?? _focusedDay;
     return ScaffoldBackground(
       child: Center(
         child: Column(
@@ -61,13 +62,13 @@ class _ScheduleState extends State<Schedule> {
                   daysOfWeekHeight: 20, // default is 16
                   focusedDay: _focusedDay,
                   selectedDayPredicate: (day) {
-                    return isSameDay(_selectedDay, day);
+                    return isSameDay(activeDate, day);
                   },
                   onPageChanged: (focusedDay) {
                     setState(() => _focusedDay = focusedDay);
                   },
                   onDaySelected: (selectedDay, focusedDay) {
-                    if (!isSameDay(_selectedDay, selectedDay)) {
+                    if (!isSameDay(activeDate, selectedDay)) {
                       setState(() {
                         _selectedDay = selectedDay;
                         _focusedDay = focusedDay;
