@@ -42,10 +42,6 @@ class _MainLayoutState extends State<MainLayout> {
                 label: "Notification",
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.campaign),
-                label: "News",
-              ),
-              BottomNavigationBarItem(
                 icon: Icon(Icons.person),
                 label: "Profile",
               ),
