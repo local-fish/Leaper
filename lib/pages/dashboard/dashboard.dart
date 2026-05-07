@@ -13,8 +13,6 @@ class _DashboardState extends State<Dashboard> {
   //TODO: Add API Call OR Riverpod Listener
   String name = "Null";
 
-  // Navigation Stuff
-
   @override
   // Note: This page is part of MainLayout so it doesn't use ScaffoldBackground
   Widget build(BuildContext context) {
