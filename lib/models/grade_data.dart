@@ -4,8 +4,18 @@ part 'grade_data.g.dart'; // this file gets auto-generated
 
 @JsonSerializable()
 class GradeData {
+  int courseId;
+  String courseName;
   List<GradeComponent> components;
-  GradeData({required this.components});
+  GradeData({
+    required this.courseId,
+    required this.courseName,
+    required this.components,
+  });
+
+  static List<GradeData> fromJsonList(List<dynamic> json) {
+    return json.map((e) => GradeData.fromJson(e)).toList();
+  }
 
   factory GradeData.fromJson(Map<String, dynamic> json) =>
       _$GradeDataFromJson(json);

@@ -7,12 +7,16 @@ part of 'grade_data.dart';
 // **************************************************************************
 
 GradeData _$GradeDataFromJson(Map<String, dynamic> json) => GradeData(
+  courseId: json['courseId'],
+  courseName: json['courseName'],
   components: (json['components'] as List<dynamic>)
       .map((e) => GradeComponent.fromJson(e as Map<String, dynamic>))
       .toList(),
 );
 
 Map<String, dynamic> _$GradeDataToJson(GradeData instance) => <String, dynamic>{
+  'courseId': instance.courseId,
+  'courseName': instance.courseName,
   'components': instance.components,
 };
 
