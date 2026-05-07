@@ -47,7 +47,12 @@ class _DashboardState extends State<Dashboard> {
                 ),
                 Column(
                   children: [
-                    DashboardButton(icon: Icons.task_alt, onPressed: () {}),
+                    DashboardButton(
+                      icon: Icons.task_alt,
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/tasks');
+                      },
+                    ),
                     Padding(padding: EdgeInsets.only(top: 8)),
                     Text("Task"),
                   ],
