@@ -1,8 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
+import 'package:leaper/models/schedule_data.dart';
+import 'package:leaper/providers/auth_provider.dart';
 import 'package:leaper/providers/user_info_provider.dart';
 
 class Dashboard extends ConsumerStatefulWidget {
@@ -12,6 +19,33 @@ class Dashboard extends ConsumerStatefulWidget {
 }
 
 class _DashboardState extends ConsumerState<Dashboard> {
+  Future<DayComponent?>? _upcomingFuture;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _upcomingFuture = fetchUpcoming();
+  }
+
+  Future<DayComponent?> fetchUpcoming() async {
+    final response = await http.get(
+      Uri.parse('${dotenv.env['API_URL']}/schedule/upcoming'),
+      headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
+    );
+
+    print(response);
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+
+      if (json == null) return null;
+
+      return DayComponent.fromJson(json);
+    } else {
+      throw Exception('Failed to fetch next session');
+    }
+  }
+
   @override
   // Note: This page is part of MainLayout so it doesn't use ScaffoldBackground
   Widget build(BuildContext context) {
@@ -94,7 +128,42 @@ class _DashboardState extends ConsumerState<Dashboard> {
                 ),
               ),
               // TODO: Add Content
-              content: Text("Temp Content"),
+              content: FutureBuilder<DayComponent?>(
+                future: _upcomingFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+
+                  if (snapshot.hasError) {
+                    return Text('Failed to load');
+                  }
+
+                  final upcoming = snapshot.data;
+
+                  if (upcoming == null) {
+                    return Text('No upcoming sessions');
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        upcoming.courseName,
+                        style: GoogleFonts.montserrat(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      Text(upcoming.sessionName ?? ''),
+
+                      Text(
+                        "${DateFormat('dd MMM yyyy • HH:mm').format(upcoming.startTime!)} - ${DateFormat('dd MMM yyyy • HH:mm').format(upcoming.endTime!)}",
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
             Padding(padding: EdgeInsets.all(8)),
             Row(
