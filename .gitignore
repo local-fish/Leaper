@@ -1,3 +1,5 @@
+# Currently Running Config
+.env
 # Miscellaneous
 *.class
 *.log
