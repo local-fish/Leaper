@@ -12,9 +12,9 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
   // TODO: Add Notification, News, and Profile Pages
-  final _pages = [Dashboard()];
   @override
   Widget build(BuildContext context) {
+    final pages = [Dashboard()];
     return ScaffoldBackground(
       bottomBar: DecoratedBox(
         decoration: BoxDecoration(
@@ -49,7 +49,7 @@ class _MainLayoutState extends State<MainLayout> {
           ),
         ),
       ),
-      child: _pages[_currentIndex],
+      child: pages[_currentIndex],
     );
   }
 }
