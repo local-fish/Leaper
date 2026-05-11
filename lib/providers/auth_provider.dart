@@ -14,11 +14,13 @@ class AuthNotifier extends AsyncNotifier<String?> {
   }
 
   Future<void> login(String token) async {
+    await future;
     await _perfs.setString('token', token);
     state = AsyncData(token);
   }
 
   Future<void> logout() async {
+    await future;
     await _perfs.remove('token');
     state = AsyncData(null);
   }
