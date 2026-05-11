@@ -1,51 +1,38 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:leaper/core/components/back_nav_heading.dart';
 import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/grade_data.dart';
+import 'package:leaper/providers/auth_provider.dart';
 
-class Grades extends StatelessWidget {
+class Grades extends ConsumerWidget {
   // TODO: Add Search Bar
   const Grades({super.key});
 
-  Future<List<GradeData>> fetchGrades() async {
-    //TODO: Add API Call
+  Future<List<GradeData>> fetchGrades(WidgetRef ref) async {
+    final response = await http.get(
+      Uri.parse('${dotenv.env['API_URL']}/grades'),
+      headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
+    );
 
-    List<GradeData> mockGrades = [
-      GradeData(
-        courseId: 1,
-        courseName: "Mathematics",
-        components: [
-          GradeComponent(component: "Midterm", grade: 85.0),
-          GradeComponent(component: "Final", grade: 90.0),
-          GradeComponent(component: "Assignment 1", grade: 78.5),
-        ],
-      ),
-      GradeData(
-        courseId: 2,
-        courseName: "Physics",
-        components: [
-          GradeComponent(component: "Midterm", grade: 72.0),
-          GradeComponent(component: "Final", grade: 88.0),
-        ],
-      ),
-      GradeData(
-        courseId: 3,
-        courseName: "English Literature",
-        components: [
-          GradeComponent(component: "Essay 1", grade: 91.0),
-          GradeComponent(component: "Essay 2", grade: 87.5),
-          GradeComponent(component: "Final", grade: 89.0),
-        ],
-      ),
-    ];
-    return mockGrades;
+    if (response.statusCode == 200) {
+      final list = jsonDecode(response.body) as List;
+
+      return list.map((e) => GradeData.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to fetch grades');
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ScaffoldBackground(
       child: Center(
         child: Column(
@@ -53,7 +40,7 @@ class Grades extends StatelessWidget {
             BackNavHeading(heading: "Grades"),
             Expanded(
               child: FutureBuilder<List<GradeData>>(
-                future: fetchGrades(),
+                future: fetchGrades(ref),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
