@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
@@ -15,13 +19,28 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginPageState extends ConsumerState<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  void handleLogin() {
-    // TODO: Remove Debug Text
-    print(_usernameController.text);
-    print(_passwordController.text);
-    // TODO: Handle HTTP Request to Back End for Login
-    final token = "temporary_token";
-    ref.read(authProvider.notifier).login(token);
+  Future<void> handleLogin() async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final response = await http.post(
+      Uri.parse('${dotenv.env['API_URL']}/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'username': _usernameController.text,
+        'password': _passwordController.text,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final token = jsonDecode(response.body)['token'];
+      ref.read(authProvider.notifier).login(token);
+      scaffoldMessenger.clearSnackBars();
+      navigator.pushReplacementNamed('/main');
+    } else {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text("Invalid username or password!")),
+      );
+    }
   }
 
   @override
