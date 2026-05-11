@@ -10,9 +10,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   // Remove all Prefs
   await dotenv.load(fileName: ".env");
-  runApp(ProviderScope(child: MyApp()));
+  WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   await prefs.clear();
+  runApp(ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
