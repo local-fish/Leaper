@@ -27,10 +27,7 @@ Map<String, dynamic> _$ScheduleComponentToJson(ScheduleComponent instance) =>
       'day': instance.day.toIso8601String(),
     };
 
-const _$EventTypeEnumMap = {
-  EventType.session: 'session',
-  EventType.exam: 'exam',
-};
+const _$EventTypeEnumMap = {EventType.course: 'course', EventType.exam: 'exam'};
 
 ScheduleDayData _$ScheduleDayDataFromJson(Map<String, dynamic> json) =>
     ScheduleDayData(
@@ -43,22 +40,30 @@ Map<String, dynamic> _$ScheduleDayDataToJson(ScheduleDayData instance) =>
     <String, dynamic>{'components': instance.components};
 
 DayComponent _$DayComponentFromJson(Map<String, dynamic> json) => DayComponent(
-  className: json['className'] as String,
-  classId: json['classId'] as String,
+  courseName: json['courseName'] as String,
+  courseId: (json['courseId'] as num).toInt(),
+  sessionName: json['sessionName'] as String,
+  sessionId: (json['sessionId'] as num).toInt(),
   type: $enumDecode(_$EventTypeEnumMap, json['type']),
   sessionNumber: (json['sessionNumber'] as num?)?.toInt(),
-  start: json['start'] == null ? null : DateTime.parse(json['start'] as String),
-  end: json['end'] == null ? null : DateTime.parse(json['end'] as String),
+  startTime: json['startTime'] == null
+      ? null
+      : DateTime.parse(json['startTime'] as String),
+  endTime: json['endTime'] == null
+      ? null
+      : DateTime.parse(json['endTime'] as String),
   location: json['location'] as String?,
 );
 
 Map<String, dynamic> _$DayComponentToJson(DayComponent instance) =>
     <String, dynamic>{
-      'className': instance.className,
-      'classId': instance.classId,
+      'courseName': instance.courseName,
+      'courseId': instance.courseId,
+      'sessionName': instance.sessionName,
+      'sessionId': instance.sessionId,
       'type': _$EventTypeEnumMap[instance.type]!,
       'sessionNumber': instance.sessionNumber,
-      'start': instance.start?.toIso8601String(),
-      'end': instance.end?.toIso8601String(),
+      'startTime': instance.startTime?.toIso8601String(),
+      'endTime': instance.endTime?.toIso8601String(),
       'location': instance.location,
     };

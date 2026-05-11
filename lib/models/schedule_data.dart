@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 part 'schedule_data.g.dart';
 
-enum EventType { session, exam }
+enum EventType { course, exam }
 
 @JsonSerializable()
 class ScheduleData {
@@ -34,20 +34,24 @@ class ScheduleDayData {
 
 @JsonSerializable()
 class DayComponent {
-  String className;
-  String classId;
+  String courseName;
+  int courseId;
+  String sessionName;
+  int sessionId;
   EventType type;
   int? sessionNumber;
-  DateTime? start;
-  DateTime? end;
+  DateTime? startTime;
+  DateTime? endTime;
   String? location;
   DayComponent({
-    required this.className,
-    required this.classId,
+    required this.courseName,
+    required this.courseId,
+    required this.sessionName,
+    required this.sessionId,
     required this.type,
     this.sessionNumber,
-    this.start,
-    this.end,
+    this.startTime,
+    this.endTime,
     this.location,
   });
   factory DayComponent.fromJson(Map<String, dynamic> json) =>

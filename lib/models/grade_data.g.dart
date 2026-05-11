@@ -7,8 +7,8 @@ part of 'grade_data.dart';
 // **************************************************************************
 
 GradeData _$GradeDataFromJson(Map<String, dynamic> json) => GradeData(
-  courseId: json['courseId'],
-  courseName: json['courseName'],
+  courseId: (json['courseId'] as num).toInt(),
+  courseName: json['courseName'] as String,
   components: (json['components'] as List<dynamic>)
       .map((e) => GradeComponent.fromJson(e as Map<String, dynamic>))
       .toList(),
