@@ -1,6 +1,10 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:leaper/core/components/back_nav_heading.dart';
@@ -8,22 +12,76 @@ import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/schedule_data.dart';
+import 'package:leaper/providers/auth_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class Schedule extends StatefulWidget {
+class Schedule extends ConsumerStatefulWidget {
   const Schedule({super.key});
   @override
-  State<Schedule> createState() => _ScheduleState();
+  ConsumerState<Schedule> createState() => _ScheduleState();
 }
 
-class _ScheduleState extends State<Schedule> {
+class _ScheduleState extends ConsumerState<Schedule> {
+  Map<DateTime, EventType> _events = {};
+  List<DayComponent> _schedule = [];
+  bool _loading = false;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  @override
+  void initState() {
+    super.initState();
+    loadSchedule(_focusedDay);
+  }
+
+  Future<void> loadSchedule(DateTime focusedDay) async {
+    setState(() => _loading = true);
+
+    try {
+      final data = await fetchSchedule(focusedDay);
+      final Map<DateTime, EventType> mappedEvents = {};
+
+      for (final item in data) {
+        if (item.startTime == null) continue;
+
+        final date = DateTime(
+          item.startTime!.year,
+          item.startTime!.month,
+          item.startTime!.day,
+        );
+
+        mappedEvents[date] = item.type;
+      }
+
+      setState(() {
+        _schedule = data;
+        _events = mappedEvents;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
+
+  Future<List<DayComponent>> fetchSchedule(DateTime focusedDay) async {
+    final start = DateTime(focusedDay.year, focusedDay.month, 1);
+    final end = DateTime(focusedDay.year, focusedDay.month + 1, 0, 23, 59, 59);
+    final response = await http.get(
+      Uri.parse(
+        '${dotenv.env['API_URL']}/schedule/${start.toIso8601String()}/${end.toIso8601String()}',
+      ),
+      headers: {'Authorization': 'Bearer ${ref.watch(authProvider).value}'},
+    );
+
+    if (response.statusCode == 200) {
+      final list = jsonDecode(response.body) as List;
+      return list.map((e) => DayComponent.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to fetch schedule');
+    }
+  }
+
   // TODO: Change to API
-  final Map<DateTime, EventType> _events = {
-    DateTime.utc(2026, 5, 7): EventType.exam,
-    DateTime.utc(2026, 5, 10): EventType.session,
-  };
   final List<String> items = [
     'Math',
     'Science',
@@ -63,8 +121,9 @@ class _ScheduleState extends State<Schedule> {
                   selectedDayPredicate: (day) {
                     return isSameDay(activeDate, day);
                   },
-                  onPageChanged: (focusedDay) {
+                  onPageChanged: (focusedDay) async {
                     setState(() => _focusedDay = focusedDay);
+                    await loadSchedule(focusedDay);
                   },
                   onDaySelected: (selectedDay, focusedDay) {
                     if (!isSameDay(activeDate, selectedDay)) {
@@ -76,15 +135,32 @@ class _ScheduleState extends State<Schedule> {
                   },
                   calendarBuilders: CalendarBuilders(
                     defaultBuilder: (context, day, focusedDay) {
-                      final EventType? events = _events[day];
+                      final normalizedDay = DateTime(
+                        day.year,
+                        day.month,
+                        day.day,
+                      );
+                      final EventType? events = _events[normalizedDay];
                       return dayContainer(day, false, events);
                     },
                     selectedBuilder: (context, day, focusedDay) {
-                      final EventType? events = _events[day];
+                      final normalizedDay = DateTime(
+                        day.year,
+                        day.month,
+                        day.day,
+                      );
+                      final EventType? events = _events[normalizedDay];
+
                       return dayContainer(day, true, events);
                     },
                     todayBuilder: (context, day, focusedDay) {
-                      final EventType? events = _events[day];
+                      final normalizedDay = DateTime(
+                        day.year,
+                        day.month,
+                        day.day,
+                      );
+                      final EventType? events = _events[normalizedDay];
+
                       return dayContainer(day, false, events);
                     },
                   ),
@@ -153,17 +229,15 @@ class _ScheduleState extends State<Schedule> {
   }
 
   Widget dayContainer(DateTime day, bool isSelected, EventType? event) {
-    final EventType? events = _events[day];
-
-    Color highlight = switch (events) {
+    Color highlight = switch (event) {
       EventType.exam => Color(0xFF9E6666),
-      EventType.session => Color(0xFF4A5580),
+      EventType.course => Color(0xFF4A5580),
       null => Color(0xFFADB5D5),
     };
 
-    Color textColor = switch (events) {
+    Color textColor = switch (event) {
       EventType.exam => Colors.black,
-      EventType.session => Colors.white,
+      EventType.course => Colors.white,
       null => Colors.white,
     };
     // Special Case for Selected Day
