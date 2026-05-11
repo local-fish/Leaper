@@ -22,8 +22,9 @@ class Schedule extends ConsumerStatefulWidget {
 }
 
 class _ScheduleState extends ConsumerState<Schedule> {
+  // Using Maps for O(1) lookup
   Map<DateTime, EventType> _events = {};
-  List<DayComponent> _schedule = [];
+  Map<DateTime, List<DayComponent>> _scheduleByDay = {};
   bool _loading = false;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -39,6 +40,7 @@ class _ScheduleState extends ConsumerState<Schedule> {
     try {
       final data = await fetchSchedule(focusedDay);
       final Map<DateTime, EventType> mappedEvents = {};
+      final Map<DateTime, List<DayComponent>> group = {};
 
       for (final item in data) {
         if (item.startTime == null) continue;
@@ -50,10 +52,12 @@ class _ScheduleState extends ConsumerState<Schedule> {
         );
 
         mappedEvents[date] = item.type;
+        group.putIfAbsent(date, () => []);
+        group[date]!.add(item);
       }
 
       setState(() {
-        _schedule = data;
+        _scheduleByDay = group;
         _events = mappedEvents;
       });
     } catch (e) {
@@ -70,7 +74,7 @@ class _ScheduleState extends ConsumerState<Schedule> {
       Uri.parse(
         '${dotenv.env['API_URL']}/schedule/${start.toIso8601String()}/${end.toIso8601String()}',
       ),
-      headers: {'Authorization': 'Bearer ${ref.watch(authProvider).value}'},
+      headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
 
     if (response.statusCode == 200) {
@@ -81,18 +85,16 @@ class _ScheduleState extends ConsumerState<Schedule> {
     }
   }
 
-  // TODO: Change to API
-  final List<String> items = [
-    'Math',
-    'Science',
-    'English',
-    'this thing',
-    'that thing',
-    'wow',
-  ];
   @override
   Widget build(BuildContext context) {
     DateTime activeDate = _selectedDay ?? _focusedDay;
+    final selectedEvents =
+        _scheduleByDay[DateTime(
+          activeDate.year,
+          activeDate.month,
+          activeDate.day,
+        )] ??
+        [];
     return ScaffoldBackground(
       child: Center(
         child: Column(
@@ -210,8 +212,8 @@ class _ScheduleState extends ConsumerState<Schedule> {
                             ListView(
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
-                              children: items
-                                  .map((item) => Text(item))
+                              children: selectedEvents
+                                  .map((item) => Text(item.courseName))
                                   .toList(),
                             ),
                           ],
