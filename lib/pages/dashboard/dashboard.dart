@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
+import 'package:leaper/providers/user_info_provider.dart';
 
-class Dashboard extends StatefulWidget {
+class Dashboard extends ConsumerStatefulWidget {
   const Dashboard({super.key});
   @override
-  State<Dashboard> createState() => _DashboardState();
+  ConsumerState<Dashboard> createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> {
-  //TODO: Add API Call OR Riverpod Listener
-  String name = "Null";
-
+class _DashboardState extends ConsumerState<Dashboard> {
   @override
   // Note: This page is part of MainLayout so it doesn't use ScaffoldBackground
   Widget build(BuildContext context) {
+    String name = ref.watch(userInfoProvider).value ?? "null";
     return Center(
       child: Padding(
         padding: EdgeInsets.all(8),

@@ -8,6 +8,7 @@ import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/core/styles/text_styles/input_styles.dart';
 import 'package:leaper/providers/auth_provider.dart';
+import 'package:leaper/providers/user_info_provider.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -33,6 +34,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     if (response.statusCode == 200) {
       final token = jsonDecode(response.body)['token'];
+      ref.read(userInfoProvider.notifier).login(_usernameController.text);
       ref.read(authProvider.notifier).login(token);
       scaffoldMessenger.clearSnackBars();
       navigator.pushReplacementNamed('/main');
