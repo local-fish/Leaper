@@ -23,8 +23,9 @@ class Schedule extends ConsumerStatefulWidget {
 
 class _ScheduleState extends ConsumerState<Schedule> {
   // Using Maps for O(1) lookup
-  Map<DateTime, EventType> _events = {};
-  Map<DateTime, List<DayComponent>> _scheduleByDay = {};
+  final Map<DateTime, EventType> _events = {};
+  final Map<DateTime, List<DayComponent>> _scheduleByDay = {};
+  Set<String> _loadedMonths = {};
   bool _loading = false;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -36,6 +37,9 @@ class _ScheduleState extends ConsumerState<Schedule> {
 
   Future<void> loadSchedule(DateTime focusedDay) async {
     setState(() => _loading = true);
+    final key = '${focusedDay.year}-${focusedDay.month}';
+
+    if (_loadedMonths.contains(key)) return;
 
     try {
       final data = await fetchSchedule(focusedDay);
@@ -57,13 +61,14 @@ class _ScheduleState extends ConsumerState<Schedule> {
       }
 
       setState(() {
-        _scheduleByDay = group;
-        _events = mappedEvents;
+        _scheduleByDay.addAll(group);
+        _events.addAll(mappedEvents);
       });
     } catch (e) {
       debugPrint(e.toString());
     } finally {
       setState(() => _loading = false);
+      _loadedMonths.add(key);
     }
   }
 
