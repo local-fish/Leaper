@@ -6,39 +6,6 @@ part of 'schedule_data.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-ScheduleData _$ScheduleDataFromJson(Map<String, dynamic> json) => ScheduleData(
-  components: (json['components'] as List<dynamic>)
-      .map((e) => ScheduleComponent.fromJson(e as Map<String, dynamic>))
-      .toList(),
-);
-
-Map<String, dynamic> _$ScheduleDataToJson(ScheduleData instance) =>
-    <String, dynamic>{'components': instance.components};
-
-ScheduleComponent _$ScheduleComponentFromJson(Map<String, dynamic> json) =>
-    ScheduleComponent(
-      event: $enumDecode(_$EventTypeEnumMap, json['event']),
-      day: DateTime.parse(json['day'] as String),
-    );
-
-Map<String, dynamic> _$ScheduleComponentToJson(ScheduleComponent instance) =>
-    <String, dynamic>{
-      'event': _$EventTypeEnumMap[instance.event]!,
-      'day': instance.day.toIso8601String(),
-    };
-
-const _$EventTypeEnumMap = {EventType.course: 'course', EventType.exam: 'exam'};
-
-ScheduleDayData _$ScheduleDayDataFromJson(Map<String, dynamic> json) =>
-    ScheduleDayData(
-      components: (json['components'] as List<dynamic>)
-          .map((e) => DayComponent.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
-
-Map<String, dynamic> _$ScheduleDayDataToJson(ScheduleDayData instance) =>
-    <String, dynamic>{'components': instance.components};
-
 DayComponent _$DayComponentFromJson(Map<String, dynamic> json) => DayComponent(
   courseName: json['courseName'] as String,
   courseId: (json['courseId'] as num).toInt(),
@@ -67,3 +34,5 @@ Map<String, dynamic> _$DayComponentToJson(DayComponent instance) =>
       'endTime': instance.endTime?.toIso8601String(),
       'location': instance.location,
     };
+
+const _$EventTypeEnumMap = {EventType.course: 'course', EventType.exam: 'exam'};
