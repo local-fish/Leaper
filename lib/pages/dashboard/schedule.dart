@@ -25,7 +25,7 @@ class _ScheduleState extends ConsumerState<Schedule> {
   // Using Maps for O(1) lookup
   final Map<DateTime, EventType> _events = {};
   final Map<DateTime, List<DayComponent>> _scheduleByDay = {};
-  Set<String> _loadedMonths = {};
+  final Set<String> _loadedMonths = {};
   bool _loading = false;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
