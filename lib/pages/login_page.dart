@@ -65,7 +65,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text("Image Placeholder Here"),
                       Text(
                         "Login",
                         style: TextStyle(
