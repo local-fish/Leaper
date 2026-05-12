@@ -1,6 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-
-part 'grade_data.g.dart'; // this file gets auto-generated
+part 'grade_data.g.dart';
 
 @JsonSerializable()
 class GradeData {
