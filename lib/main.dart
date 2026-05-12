@@ -5,14 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:leaper/core/routes.dart';
 import 'package:leaper/pages/login_page.dart';
 import 'package:leaper/providers/auth_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   // Remove all Prefs
   await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.clear();
   runApp(ProviderScope(child: MyApp()));
 }
 
