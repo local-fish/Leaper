@@ -70,7 +70,12 @@ class _DashboardState extends ConsumerState<Dashboard> {
                 // TODO: Add Navigation
                 Column(
                   children: [
-                    DashboardButton(icon: Icons.book, onPressed: () {}),
+                    DashboardButton(
+                      icon: Icons.book,
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/course');
+                      },
+                    ),
                     Padding(padding: EdgeInsets.only(top: 8)),
                     Text("Course"),
                   ],
