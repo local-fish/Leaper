@@ -24,7 +24,6 @@ class _DashboardState extends ConsumerState<Dashboard> {
   @override
   void initState() {
     super.initState();
-
     _upcomingFuture = fetchUpcoming();
   }
 
@@ -34,7 +33,6 @@ class _DashboardState extends ConsumerState<Dashboard> {
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
 
-    print(response);
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
 
