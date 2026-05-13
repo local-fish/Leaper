@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/pages/dashboard/dashboard.dart';
+import 'package:leaper/pages/notifications/notification_list.dart';
+import 'package:leaper/pages/profile/profile.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -14,7 +16,7 @@ class _MainLayoutState extends State<MainLayout> {
   // TODO: Add Notification, News, and Profile Pages
   @override
   Widget build(BuildContext context) {
-    final pages = [Dashboard()];
+    final pages = [Dashboard(), NotificationList(), Profile()];
     return ScaffoldBackground(
       bottomBar: DecoratedBox(
         decoration: BoxDecoration(
