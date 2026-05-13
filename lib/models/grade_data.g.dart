@@ -23,7 +23,7 @@ Map<String, dynamic> _$GradeDataToJson(GradeData instance) => <String, dynamic>{
 GradeComponent _$GradeComponentFromJson(Map<String, dynamic> json) =>
     GradeComponent(
       component: json['component'] as String,
-      grade: (json['grade'] as num).toDouble(),
+      grade: (json['grade'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$GradeComponentToJson(GradeComponent instance) =>

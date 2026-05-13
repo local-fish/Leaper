@@ -24,8 +24,8 @@ class GradeData {
 @JsonSerializable()
 class GradeComponent {
   String component;
-  double grade;
-  GradeComponent({required this.component, required this.grade});
+  double? grade;
+  GradeComponent({required this.component, this.grade});
   factory GradeComponent.fromJson(Map<String, dynamic> json) =>
       _$GradeComponentFromJson(json);
   Map<String, dynamic> toJson() => _$GradeComponentToJson(this);
