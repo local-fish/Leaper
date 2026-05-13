@@ -5,8 +5,15 @@ part 'course_data.g.dart';
 class CourseData {
   String name;
   int id;
+  int studentCount;
+  int sessionCount;
 
-  CourseData({required this.id, required this.name});
+  CourseData({
+    required this.id,
+    required this.name,
+    required this.studentCount,
+    required this.sessionCount,
+  });
   static List<CourseData> fromJsonList(List<dynamic> json) {
     return json.map((e) => CourseData.fromJson(e)).toList();
   }
