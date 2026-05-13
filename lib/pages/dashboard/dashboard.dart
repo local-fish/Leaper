@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/schedule_data.dart';
+import 'package:leaper/pages/courses/course_detail.dart';
 import 'package:leaper/providers/auth_provider.dart';
 import 'package:leaper/providers/user_info_provider.dart';
 
@@ -67,7 +68,6 @@ class _DashboardState extends ConsumerState<Dashboard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // TODO: Add Navigation
                 Column(
                   children: [
                     DashboardButton(
@@ -130,7 +130,6 @@ class _DashboardState extends ConsumerState<Dashboard> {
                   ),
                 ),
               ),
-              // TODO: Add Content
               content: FutureBuilder<DayComponent?>(
                 future: _upcomingFuture,
                 builder: (context, snapshot) {
@@ -148,40 +147,50 @@ class _DashboardState extends ConsumerState<Dashboard> {
                     return Text('No upcoming sessions');
                   }
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        upcoming.courseName,
-                        style: GoogleFonts.montserrat(
-                          fontWeight: FontWeight.bold,
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/course/detail',
+                        arguments: CourseDetailArgs(
+                          courseId: upcoming.courseId,
                         ),
-                      ),
+                      );
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          upcoming.courseName,
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
 
-                      Text(upcoming.sessionName ?? ''),
+                        Text(upcoming.sessionName),
 
-                      Text(
-                        "${DateFormat('dd MMM yyyy • HH:mm').format(upcoming.startTime!)} - ${DateFormat('dd MMM yyyy • HH:mm').format(upcoming.endTime!)}",
-                      ),
-                    ],
+                        Text(
+                          "${DateFormat('dd MMM yyyy • HH:mm').format(upcoming.startTime!)} - ${DateFormat('dd MMM yyyy • HH:mm').format(upcoming.endTime!)}",
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),
             ),
             Padding(padding: EdgeInsets.all(8)),
-            Expanded(
-              child: HeadingCard(
-                heading: Text(
-                  "Notifications",
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.montserrat(
-                    fontSize: FontSizes.small,
-                    fontWeight: FontWeight.w500,
-                  ),
+            HeadingCard(
+              heading: Text(
+                "Notifications",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.montserrat(
+                  fontSize: FontSizes.small,
+                  fontWeight: FontWeight.w500,
                 ),
-                // TODO: Add Content
-                content: Text("Temp Content"),
               ),
+              // TODO: Add Content
+              content: Text("Temp Content"),
             ),
           ],
         ),
