@@ -169,39 +169,19 @@ class _DashboardState extends ConsumerState<Dashboard> {
               ),
             ),
             Padding(padding: EdgeInsets.all(8)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: HeadingCard(
-                    heading: Text(
-                      "Activity",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.montserrat(
-                        fontSize: FontSizes.small,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    // TODO: Add Content
-                    content: Text("Temp Content"),
+            Expanded(
+              child: HeadingCard(
+                heading: Text(
+                  "Notifications",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.montserrat(
+                    fontSize: FontSizes.small,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: HeadingCard(
-                    heading: Text(
-                      "Reminder",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.montserrat(
-                        fontSize: FontSizes.small,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    // TODO: Add Content
-                    content: Text("Temp Content"),
-                  ),
-                ),
-              ],
+                // TODO: Add Content
+                content: Text("Temp Content"),
+              ),
             ),
           ],
         ),
