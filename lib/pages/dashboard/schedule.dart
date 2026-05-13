@@ -196,14 +196,16 @@ class _ScheduleState extends ConsumerState<Schedule> {
                         right: BorderSide(color: Colors.white, width: 1),
                       ),
                     ),
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 8, left: 20, right: 20),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
+                    child: CustomScrollView(
+                      slivers: [
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              top: 8,
+                              left: 20,
+                              right: 20,
+                            ),
+                            child: Text(
                               DateFormat(
                                 'dd MMMM yyyy',
                               ).format(_selectedDay ?? _focusedDay),
@@ -213,17 +215,27 @@ class _ScheduleState extends ConsumerState<Schedule> {
                                 fontSize: FontSizes.medium,
                               ),
                             ),
-                            // TODO: Add Content of Each Day, Simply construct the EventCard class, and then replace the Text in the bottom function
-                            ListView(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              children: selectedEvents
-                                  .map((item) => Text(item.courseName))
-                                  .toList(),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+                        SliverPadding(
+                          padding: EdgeInsets.only(
+                            left: 20,
+                            right: 20,
+                            bottom: 20,
+                          ),
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) => Padding(
+                                padding: EdgeInsets.only(bottom: 12),
+                                child: EventContainer(
+                                  item: selectedEvents[index],
+                                ),
+                              ),
+                              childCount: selectedEvents.length,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -261,6 +273,75 @@ class _ScheduleState extends ConsumerState<Schedule> {
             color: textColor,
             fontWeight: FontWeight.w600,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class EventContainer extends StatelessWidget {
+  final DayComponent item;
+  const EventContainer({super.key, required this.item});
+
+  String renderEventType(EventType event) {
+    return switch (event) {
+      EventType.exam => "Examination",
+      EventType.course => "Class Sesssion",
+    };
+  }
+
+  String renderEventTime(DateTime start, DateTime end) {
+    return "${DateFormat('HH:mm').format(start)} - ${DateFormat('HH:mm').format(end)}";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Color(0x20373750),
+        borderRadius: BorderRadius.all(Radius.circular(24)),
+        border: Border.all(color: Colors.white),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              renderEventType(item.type),
+              style: GoogleFonts.montserrat(
+                color: Colors.white,
+                fontSize: FontSizes.medium,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Text(
+                    item.courseName,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.montserrat(color: Colors.white),
+                  ),
+                ),
+                Text(
+                  renderEventTime(item.startTime!, item.endTime!),
+                  style: GoogleFonts.montserrat(color: Colors.white),
+                ),
+              ],
+            ),
+
+            SizedBox(height: 8),
+            Text(
+              "Session: ${item.sessionName}",
+              style: GoogleFonts.montserrat(color: Colors.white),
+            ),
+            Text(
+              "Location: ${item.location!}",
+              style: GoogleFonts.montserrat(color: Colors.white),
+            ),
+          ],
         ),
       ),
     );
