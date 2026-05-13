@@ -12,6 +12,7 @@ import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/schedule_data.dart';
+import 'package:leaper/pages/courses/course_detail.dart';
 import 'package:leaper/providers/auth_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -296,52 +297,61 @@ class EventContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Color(0x20373750),
-        borderRadius: BorderRadius.all(Radius.circular(24)),
-        border: Border.all(color: Colors.white),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              renderEventType(item.type),
-              style: GoogleFonts.montserrat(
-                color: Colors.white,
-                fontSize: FontSizes.medium,
-                fontWeight: FontWeight.w600,
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          '/course/detail',
+          arguments: CourseDetailArgs(courseId: item.courseId),
+        );
+      },
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Color(0x20373750),
+          borderRadius: BorderRadius.all(Radius.circular(24)),
+          border: Border.all(color: Colors.white),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                renderEventType(item.type),
+                style: GoogleFonts.montserrat(
+                  color: Colors.white,
+                  fontSize: FontSizes.medium,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Text(
-                    item.courseName,
-                    overflow: TextOverflow.ellipsis,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      item.courseName,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.montserrat(color: Colors.white),
+                    ),
+                  ),
+                  Text(
+                    renderEventTime(item.startTime!, item.endTime!),
                     style: GoogleFonts.montserrat(color: Colors.white),
                   ),
-                ),
-                Text(
-                  renderEventTime(item.startTime!, item.endTime!),
-                  style: GoogleFonts.montserrat(color: Colors.white),
-                ),
-              ],
-            ),
+                ],
+              ),
 
-            SizedBox(height: 8),
-            Text(
-              "Session: ${item.sessionName}",
-              style: GoogleFonts.montserrat(color: Colors.white),
-            ),
-            Text(
-              "Location: ${item.location!}",
-              style: GoogleFonts.montserrat(color: Colors.white),
-            ),
-          ],
+              SizedBox(height: 8),
+              Text(
+                "Session: ${item.sessionName}",
+                style: GoogleFonts.montserrat(color: Colors.white),
+              ),
+              Text(
+                "Location: ${item.location!}",
+                style: GoogleFonts.montserrat(color: Colors.white),
+              ),
+            ],
+          ),
         ),
       ),
     );
