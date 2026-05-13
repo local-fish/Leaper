@@ -10,6 +10,7 @@ import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/course_data.dart';
+import 'package:leaper/pages/courses/course_detail.dart';
 import 'package:leaper/providers/auth_provider.dart';
 
 class Course extends ConsumerStatefulWidget {
@@ -73,18 +74,28 @@ class CourseListItem extends StatelessWidget {
       itemCount: items.length,
       separatorBuilder: (context, index) => SizedBox(height: 12),
       itemBuilder: (context, index) {
-        return HeadingCard(
-          heading: Padding(
-            padding: EdgeInsets.only(left: 12),
-            child: Text(
-              items[index].name,
-              style: GoogleFonts.montserrat(
-                fontSize: FontSizes.small,
-                fontWeight: FontWeight.w600,
+        return GestureDetector(
+          onTap: () {
+            print("Attempting to Navigate");
+            Navigator.pushNamed(
+              context,
+              '/course/detail',
+              arguments: CourseDetailArgs(courseId: items[index].id),
+            );
+          },
+          child: HeadingCard(
+            heading: Padding(
+              padding: EdgeInsets.only(left: 12),
+              child: Text(
+                items[index].name,
+                style: GoogleFonts.montserrat(
+                  fontSize: FontSizes.small,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
+            content: Text("Temp content - TODO (API)"),
           ),
-          content: Text("Temp content"),
         );
       },
     );
