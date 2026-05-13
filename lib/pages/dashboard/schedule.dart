@@ -218,6 +218,18 @@ class _ScheduleState extends ConsumerState<Schedule> {
                             ),
                           ),
                         ),
+                        if (selectedEvents.isEmpty)
+                          SliverFillRemaining(
+                            child: Center(
+                              child: Text(
+                                "No Events on this day",
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.montserrat(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
                         SliverPadding(
                           padding: EdgeInsets.only(
                             left: 20,
