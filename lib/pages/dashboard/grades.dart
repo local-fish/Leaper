@@ -10,6 +10,7 @@ import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/grade_data.dart';
+import 'package:leaper/pages/courses/course_detail.dart';
 import 'package:leaper/providers/auth_provider.dart';
 
 class Grades extends ConsumerWidget {
@@ -72,33 +73,42 @@ class GradeListItem extends StatelessWidget {
       itemCount: items.length,
       separatorBuilder: (context, index) => SizedBox(height: 12),
       itemBuilder: (context, index) {
-        return HeadingCard(
-          heading: Padding(
-            padding: EdgeInsets.only(left: 12),
-            child: Text(
-              items[index].courseName,
-              style: GoogleFonts.montserrat(
-                fontSize: FontSizes.small,
-                fontWeight: FontWeight.w600,
+        return GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              '/course/detail',
+              arguments: CourseDetailArgs(courseId: items[index].courseId),
+            );
+          },
+          child: HeadingCard(
+            heading: Padding(
+              padding: EdgeInsets.only(left: 12),
+              child: Text(
+                items[index].courseName,
+                style: GoogleFonts.montserrat(
+                  fontSize: FontSizes.small,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ),
-          content: Column(
-            children: items[index].components.map((component) {
-              return Padding(
-                padding: EdgeInsets.only(left: 12, right: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(component.component),
-                    if (component.grade != null)
-                      Text(component.grade!.toStringAsFixed(1))
-                    else
-                      Text("N/A"),
-                  ],
-                ),
-              );
-            }).toList(),
+            content: Column(
+              children: items[index].components.map((component) {
+                return Padding(
+                  padding: EdgeInsets.only(left: 12, right: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(component.component),
+                      if (component.grade != null)
+                        Text(component.grade!.toStringAsFixed(1))
+                      else
+                        Text("N/A"),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
           ),
         );
       },
