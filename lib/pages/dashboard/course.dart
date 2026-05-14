@@ -76,7 +76,6 @@ class CourseListItem extends StatelessWidget {
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
-            print("Attempting to Navigate");
             Navigator.pushNamed(
               context,
               '/course/detail',
