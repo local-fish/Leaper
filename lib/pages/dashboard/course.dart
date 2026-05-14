@@ -53,7 +53,10 @@ class _CourseState extends ConsumerState<Course> {
                     return Center(child: Text('Something went wrong'));
                   }
                   final course = snapshot.data!;
-                  return CourseListItem(items: course);
+                  return Padding(
+                    padding: EdgeInsets.all(8),
+                    child: CourseListItem(items: course),
+                  );
                 },
               ),
             ),
@@ -96,20 +99,24 @@ class CourseListItem extends StatelessWidget {
             content: Padding(
               padding: EdgeInsets.all(4),
               child: Table(
+                columnWidths: <int, TableColumnWidth>{
+                  0: IntrinsicColumnWidth(),
+                  1: FlexColumnWidth(),
+                },
                 children: <TableRow>[
                   TableRow(
-                    children: [Text("Lecturer: "), Text("TODO (Awaiting API)")],
+                    children: [Text("Lecturer"), Text(": TODO (Awaiting API)")],
                   ),
                   TableRow(
                     children: [
-                      Text("Students: "),
-                      Text(items[index].studentCount.toString()),
+                      Text("Students"),
+                      Text(": ${items[index].studentCount.toString()}"),
                     ],
                   ),
                   TableRow(
                     children: [
-                      Text("Sessions: "),
-                      Text(items[index].sessionCount.toString()),
+                      Text("Sessions"),
+                      Text(": ${items[index].sessionCount.toString()}"),
                     ],
                   ),
                 ],
