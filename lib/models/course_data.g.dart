@@ -20,3 +20,19 @@ Map<String, dynamic> _$CourseDataToJson(CourseData instance) =>
       'studentCount': instance.studentCount,
       'sessionCount': instance.sessionCount,
     };
+
+CourseStudentData _$CourseStudentDataFromJson(Map<String, dynamic> json) =>
+    CourseStudentData(
+      id: (json['id'] as num).toInt(),
+      name: json['name'] as String,
+      email: json['email'] as String,
+      role: json['role'] as String,
+    );
+
+Map<String, dynamic> _$CourseStudentDataToJson(CourseStudentData instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'email': instance.email,
+      'role': instance.role,
+    };

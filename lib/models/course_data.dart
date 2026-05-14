@@ -22,3 +22,25 @@ class CourseData {
       _$CourseDataFromJson(json);
   Map<String, dynamic> toJson() => _$CourseDataToJson(this);
 }
+
+@JsonSerializable()
+class CourseStudentData {
+  int id;
+  String name;
+  String email;
+  String role;
+
+  CourseStudentData({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.role,
+  });
+  static List<CourseStudentData> fromJsonList(List<dynamic> json) {
+    return json.map((e) => CourseStudentData.fromJson(e)).toList();
+  }
+
+  factory CourseStudentData.fromJson(Map<String, dynamic> json) =>
+      _$CourseStudentDataFromJson(json);
+  Map<String, dynamic> toJson() => _$CourseStudentDataToJson(this);
+}
