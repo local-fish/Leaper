@@ -101,7 +101,7 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                           "Course Data",
                           style: GoogleFonts.montserrat(
                             fontSize: FontSizes.small,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -143,7 +143,7 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                           "People",
                           style: GoogleFonts.montserrat(
                             fontSize: FontSizes.small,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
