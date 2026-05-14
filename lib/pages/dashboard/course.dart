@@ -93,7 +93,28 @@ class CourseListItem extends StatelessWidget {
                 ),
               ),
             ),
-            content: Text("Temp content - TODO (API)"),
+            content: Padding(
+              padding: EdgeInsets.all(4),
+              child: Table(
+                children: <TableRow>[
+                  TableRow(
+                    children: [Text("Lecturer: "), Text("TODO (Awaiting API)")],
+                  ),
+                  TableRow(
+                    children: [
+                      Text("Students: "),
+                      Text(items[index].studentCount.toString()),
+                    ],
+                  ),
+                  TableRow(
+                    children: [
+                      Text("Sessions: "),
+                      Text(items[index].sessionCount.toString()),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
         );
       },
