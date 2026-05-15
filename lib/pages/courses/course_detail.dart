@@ -89,119 +89,173 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                 );
               }
               final course = snapshot.data!;
-              return Padding(
-                padding: EdgeInsets.all(8),
-                // Todo: Scrollview
-                child: Column(
-                  children: [
-                    HeadingCard(
-                      heading: Padding(
-                        padding: EdgeInsets.only(left: 8),
-                        child: Text(
-                          "Course Data",
-                          style: GoogleFonts.montserrat(
-                            fontSize: FontSizes.small,
-                            fontWeight: FontWeight.w600,
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(8),
+                  // Todo: Scrollview
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        HeadingCard(
+                          heading: Padding(
+                            padding: EdgeInsets.only(left: 8),
+                            child: Text(
+                              "Course Data",
+                              style: GoogleFonts.montserrat(
+                                fontSize: FontSizes.small,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      content: Table(
-                        columnWidths: const <int, TableColumnWidth>{
-                          0: IntrinsicColumnWidth(),
-                          1: FlexColumnWidth(),
-                        },
-                        children: <TableRow>[
-                          TableRow(
-                            children: [
-                              Text("Course"),
-                              Text(": ${course.name}"),
-                            ],
-                          ),
-                          TableRow(
-                            children: [Text("Lecturer"), Text(": TODO")],
-                          ),
-                          TableRow(
-                            children: [
-                              Text("Students"),
-                              Text(": ${course.studentCount.toString()}"),
-                            ],
-                          ),
-                          TableRow(
-                            children: [
-                              Text("Sessions"),
-                              Text(": ${course.sessionCount.toString()}"),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 12),
-                    HeadingCard(
-                      heading: Padding(
-                        padding: EdgeInsets.only(left: 8),
-                        child: Text(
-                          "People",
-                          style: GoogleFonts.montserrat(
-                            fontSize: FontSizes.small,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      content: ExpansionTile(
-                        onExpansionChanged: (expanded) {
-                          if (expanded && _studentsFuture == null) {
-                            setState(() {
-                              _studentsFuture = fetchCourseStudents(ref, args);
-                            });
-                          }
-                        },
-                        tilePadding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 0,
-                        ),
-                        title: Text(
-                          "Students",
-                          style: GoogleFonts.montserrat(
-                            fontSize: FontSizes.small,
-                          ),
-                        ),
-                        shape: Border(),
-                        children: [
-                          FutureBuilder(
-                            future: _studentsFuture,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Column(
-                                  children: [
-                                    Center(child: CircularProgressIndicator()),
-                                  ],
-                                );
-                              } else if (snapshot.hasError) {
-                                return Column(
-                                  children: [
-                                    Center(child: Text("Something went wrong")),
-                                  ],
-                                );
-                              }
-                              final people = snapshot.data!;
-                              return Column(
-                                children: people
-                                    .map((x) => Text(x.name))
-                                    .toList(),
-                              );
+                          content: Table(
+                            columnWidths: const <int, TableColumnWidth>{
+                              0: IntrinsicColumnWidth(),
+                              1: FlexColumnWidth(),
                             },
+                            children: <TableRow>[
+                              TableRow(
+                                children: [
+                                  Text("Course"),
+                                  Text(": ${course.name}"),
+                                ],
+                              ),
+                              TableRow(
+                                children: [Text("Lecturer"), Text(": TODO")],
+                              ),
+                              TableRow(
+                                children: [
+                                  Text("Students"),
+                                  Text(": ${course.studentCount.toString()}"),
+                                ],
+                              ),
+                              TableRow(
+                                children: [
+                                  Text("Sessions"),
+                                  Text(": ${course.sessionCount.toString()}"),
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        SizedBox(height: 12),
+                        HeadingCard(
+                          heading: Padding(
+                            padding: EdgeInsets.only(left: 8),
+                            child: Text(
+                              "People",
+                              style: GoogleFonts.montserrat(
+                                fontSize: FontSizes.small,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          content: ExpansionTile(
+                            onExpansionChanged: (expanded) {
+                              if (expanded && _studentsFuture == null) {
+                                setState(() {
+                                  _studentsFuture = fetchCourseStudents(
+                                    ref,
+                                    args,
+                                  );
+                                });
+                              }
+                            },
+                            tilePadding: EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 0,
+                            ),
+                            title: Text(
+                              "Students",
+                              style: TextStyle(
+                                fontSize: FontSizes.small,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            shape: Border(),
+                            children: [
+                              FutureBuilder(
+                                future: _studentsFuture,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Column(
+                                      children: [
+                                        Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      ],
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return Column(
+                                      children: [
+                                        Center(
+                                          child: Text("Something went wrong"),
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                  final people = snapshot.data!;
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      left: 12,
+                                      right: 12,
+                                    ),
+                                    child: SizedBox(
+                                      width: double.infinity,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: people
+                                            .expand(
+                                              (x) => {
+                                                Person(person: x),
+                                                SizedBox(height: 4),
+                                              },
+                                            )
+                                            .toList(),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               );
             },
           ),
         ],
       ),
+    );
+  }
+}
+
+class Person extends StatelessWidget {
+  final CourseStudentData person;
+  const Person({super.key, required this.person});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          person.name,
+          style: TextStyle(
+            fontSize: FontSizes.small,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Text(person.email, style: TextStyle(fontSize: FontSizes.verySmall)),
+        Text(
+          "${person.role} • ${person.id}",
+          style: TextStyle(fontSize: FontSizes.verySmall),
+        ),
+      ],
     );
   }
 }
