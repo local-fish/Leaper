@@ -27,12 +27,14 @@ class CourseDetail extends ConsumerStatefulWidget {
 class _CourseDetailState extends ConsumerState<CourseDetail> {
   Future<List<CourseStudentData>>? _studentsFuture;
   Future<CourseData>? _courseDetailsFuture;
+  Future<List<CourseSessionData>>? _courseSessionsFuture;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)!.settings.arguments as CourseDetailArgs;
     _courseDetailsFuture ??= fetchCourseDetails(ref, args);
+    _courseSessionsFuture ??= fetchCourseSessions(ref, args);
   }
 
   Future<CourseData> fetchCourseDetails(
@@ -65,7 +67,24 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
       final out = jsonDecode(response.body) as List;
       return CourseStudentData.fromJsonList(out);
     } else {
-      throw Exception('Failed to fetch course');
+      throw Exception('Failed to fetch people');
+    }
+  }
+
+  Future<List<CourseSessionData>> fetchCourseSessions(
+    WidgetRef ref,
+    CourseDetailArgs args,
+  ) async {
+    final response = await http.get(
+      Uri.parse('${dotenv.env['API_URL']}/course/${args.courseId}/sessions'),
+      headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
+    );
+
+    if (response.statusCode == 200) {
+      final out = jsonDecode(response.body) as List;
+      return CourseSessionData.fromJsonList(out);
+    } else {
+      throw Exception('Failed to fetch sessions');
     }
   }
 
@@ -178,20 +197,12 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
-                                    return Column(
-                                      children: [
-                                        Center(
-                                          child: CircularProgressIndicator(),
-                                        ),
-                                      ],
+                                    return Center(
+                                      child: CircularProgressIndicator(),
                                     );
                                   } else if (snapshot.hasError) {
-                                    return Column(
-                                      children: [
-                                        Center(
-                                          child: Text("Something went wrong"),
-                                        ),
-                                      ],
+                                    return Center(
+                                      child: Text("Something went wrong"),
                                     );
                                   }
                                   final people = snapshot.data!;
@@ -219,6 +230,40 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                                 },
                               ),
                             ],
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        HeadingCard(
+                          heading: Padding(
+                            padding: EdgeInsets.only(left: 8),
+                            child: Text(
+                              "Sessions",
+                              style: GoogleFonts.montserrat(
+                                fontSize: FontSizes.small,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          content: FutureBuilder(
+                            future: _courseSessionsFuture,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                  child: Text("Something went wrong"),
+                                );
+                              }
+                              final sessions = snapshot.data!;
+                              return Column(
+                                children: sessions
+                                    .map((x) => Text(x.topic))
+                                    .toList(),
+                              );
+                            },
                           ),
                         ),
                       ],
