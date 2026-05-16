@@ -105,7 +105,14 @@ class CourseListItem extends StatelessWidget {
                 },
                 children: <TableRow>[
                   TableRow(
-                    children: [Text("Lecturer"), Text(": TODO (Awaiting API)")],
+                    children: [
+                      Text(
+                        "Lecturer${items[index].lecturers!.length > 1 ? 's' : ''}",
+                      ),
+                      Text(
+                        ": ${items[index].lecturers!.map((l) => l.name).join(', ')}",
+                      ),
+                    ],
                   ),
                   TableRow(
                     children: [
