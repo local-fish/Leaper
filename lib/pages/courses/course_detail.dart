@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:leaper/core/components/back_nav_heading.dart';
 import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
@@ -25,7 +26,7 @@ class CourseDetail extends ConsumerStatefulWidget {
 }
 
 class _CourseDetailState extends ConsumerState<CourseDetail> {
-  Future<List<CourseStudentData>>? _studentsFuture;
+  Future<List<CoursePersonData>>? _studentsFuture;
   Future<CourseData>? _courseDetailsFuture;
   Future<List<CourseSessionData>>? _courseSessionsFuture;
 
@@ -54,7 +55,7 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
     }
   }
 
-  Future<List<CourseStudentData>> fetchCourseStudents(
+  Future<List<CoursePersonData>> fetchCourseStudents(
     WidgetRef ref,
     CourseDetailArgs args,
   ) async {
@@ -65,7 +66,7 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
 
     if (response.statusCode == 200) {
       final out = jsonDecode(response.body) as List;
-      return CourseStudentData.fromJsonList(out);
+      return CoursePersonData.fromJsonList(out);
     } else {
       throw Exception('Failed to fetch people');
     }
@@ -83,6 +84,23 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
     if (response.statusCode == 200) {
       final out = jsonDecode(response.body) as List;
       return CourseSessionData.fromJsonList(out);
+    } else {
+      throw Exception('Failed to fetch sessions');
+    }
+  }
+
+  Future<CourseSessionData> fetchSessionMaterials(
+    WidgetRef ref,
+    int args,
+  ) async {
+    final response = await http.get(
+      Uri.parse('${dotenv.env['API_URL']}/session/$args'),
+      headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
+    );
+
+    if (response.statusCode == 200) {
+      final out = jsonDecode(response.body);
+      return CourseSessionData.fromJson(out);
     } else {
       throw Exception('Failed to fetch sessions');
     }
@@ -139,7 +157,14 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                                 ],
                               ),
                               TableRow(
-                                children: [Text("Lecturer"), Text(": TODO")],
+                                children: [
+                                  Text(
+                                    "Lecturer${course.lecturers!.length > 1 ? 's' : ''}",
+                                  ),
+                                  Text(
+                                    ": ${course.lecturers!.map((l) => l.name).join(', ')}",
+                                  ),
+                                ],
                               ),
                               TableRow(
                                 children: [
@@ -168,66 +193,133 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                               ),
                             ),
                           ),
-                          content: ExpansionTile(
-                            onExpansionChanged: (expanded) {
-                              if (expanded && _studentsFuture == null) {
-                                setState(() {
-                                  _studentsFuture = fetchCourseStudents(
-                                    ref,
-                                    args,
-                                  );
-                                });
-                              }
-                            },
-                            tilePadding: EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 0,
-                            ),
-                            title: Text(
-                              "Students",
-                              style: TextStyle(
-                                fontSize: FontSizes.small,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            shape: Border(),
+                          content: Column(
                             children: [
-                              FutureBuilder(
-                                future: _studentsFuture,
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  } else if (snapshot.hasError) {
-                                    return Center(
-                                      child: Text("Something went wrong"),
-                                    );
+                              ExpansionTile(
+                                onExpansionChanged: (expanded) {
+                                  if (expanded && _studentsFuture == null) {
+                                    setState(() {
+                                      _studentsFuture = fetchCourseStudents(
+                                        ref,
+                                        args,
+                                      );
+                                    });
                                   }
-                                  final people = snapshot.data!;
-                                  return Padding(
-                                    padding: EdgeInsets.only(
-                                      left: 12,
-                                      right: 12,
-                                    ),
-                                    child: SizedBox(
-                                      width: double.infinity,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: people
-                                            .expand(
-                                              (x) => {
-                                                Person(person: x),
-                                                SizedBox(height: 4),
-                                              },
-                                            )
-                                            .toList(),
-                                      ),
-                                    ),
-                                  );
                                 },
+                                tilePadding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 0,
+                                ),
+                                title: Text(
+                                  "Lecturers",
+                                  style: TextStyle(
+                                    fontSize: FontSizes.small,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                shape: Border(),
+                                children: [
+                                  FutureBuilder(
+                                    future: _courseDetailsFuture,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      } else if (snapshot.hasError) {
+                                        return Center(
+                                          child: Text("Something went wrong"),
+                                        );
+                                      }
+                                      final course = snapshot.data!;
+                                      return Padding(
+                                        padding: EdgeInsets.only(
+                                          left: 12,
+                                          right: 12,
+                                        ),
+                                        child: SizedBox(
+                                          width: double.infinity,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: course.lecturers!
+                                                .expand(
+                                                  (x) => {
+                                                    Person(person: x),
+                                                    SizedBox(height: 4),
+                                                  },
+                                                )
+                                                .toList(),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                              ExpansionTile(
+                                onExpansionChanged: (expanded) {
+                                  if (expanded && _studentsFuture == null) {
+                                    setState(() {
+                                      _studentsFuture = fetchCourseStudents(
+                                        ref,
+                                        args,
+                                      );
+                                    });
+                                  }
+                                },
+                                tilePadding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 0,
+                                ),
+                                title: Text(
+                                  "Students",
+                                  style: TextStyle(
+                                    fontSize: FontSizes.small,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                shape: Border(),
+                                children: [
+                                  FutureBuilder(
+                                    future: _studentsFuture,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      } else if (snapshot.hasError) {
+                                        return Center(
+                                          child: Text("Something went wrong"),
+                                        );
+                                      }
+                                      final people = snapshot.data!;
+                                      return Padding(
+                                        padding: EdgeInsets.only(
+                                          left: 12,
+                                          right: 12,
+                                        ),
+                                        child: SizedBox(
+                                          width: double.infinity,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: people
+                                                .expand(
+                                                  (x) => {
+                                                    Person(person: x),
+                                                    SizedBox(height: 4),
+                                                  },
+                                                )
+                                                .toList(),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -258,9 +350,23 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                                 );
                               }
                               final sessions = snapshot.data!;
+                              // Just in case!
+                              sessions.sort(
+                                (a, b) => a.sessionNo.compareTo(b.sessionNo),
+                              );
                               return Column(
                                 children: sessions
-                                    .map((x) => Text(x.topic))
+                                    .map(
+                                      (x) => Session(
+                                        data: x,
+                                        fetchSessionMaterials:
+                                            (WidgetRef ref, int args) =>
+                                                fetchSessionMaterials(
+                                                  ref,
+                                                  args,
+                                                ),
+                                      ),
+                                    )
                                     .toList(),
                               );
                             },
@@ -279,8 +385,105 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
   }
 }
 
+class Session extends ConsumerStatefulWidget {
+  final Future<CourseSessionData> Function(WidgetRef ref, int args)
+  fetchSessionMaterials;
+  final CourseSessionData data;
+
+  const Session({
+    super.key,
+    required this.data,
+    required this.fetchSessionMaterials,
+  });
+  @override
+  ConsumerState<Session> createState() => _SessionState();
+}
+
+class _SessionState extends ConsumerState<Session> {
+  Future<CourseSessionData>? future;
+  @override
+  Widget build(BuildContext context) {
+    final CourseSessionData data = widget.data;
+    return ExpansionTile(
+      onExpansionChanged: (expanded) {
+        if (expanded && future == null) {
+          setState(() {
+            future = widget.fetchSessionMaterials(ref, data.id);
+          });
+        }
+      },
+      tilePadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+      title: Text(
+        "${data.sessionNo} • ${data.topic}",
+        style: TextStyle(
+          fontSize: FontSizes.small,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      shape: Border(),
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 8, right: 8),
+          child: Table(
+            columnWidths: const <int, TableColumnWidth>{
+              0: IntrinsicColumnWidth(),
+              1: FlexColumnWidth(),
+            },
+            children: <TableRow>[
+              TableRow(
+                children: [
+                  Text("Start "),
+                  Text(
+                    ": ${DateFormat('dd MMM yyyy • HH:mm').format(data.startTime)}",
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  Text("End "),
+                  Text(
+                    ": ${DateFormat('dd MMM yyyy • HH:mm').format(data.endTime)}",
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [Text("Location "), Text(": ${data.location}")],
+              ),
+            ],
+          ),
+        ),
+        FutureBuilder(
+          future: future,
+          builder: (context, snapshot) {
+            // TODO: this should probably be standardized into a component but honestly i'm too far deep to do that
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text("Something went wrong"));
+            }
+            final data = snapshot.data!;
+            return ConstrainedBox(
+              constraints: BoxConstraints(minWidth: double.infinity),
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Materials: "),
+                    ...?data.files?.map((x) => Text(x.name)),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
 class Person extends StatelessWidget {
-  final CourseStudentData person;
+  final CoursePersonData person;
   const Person({super.key, required this.person});
 
   @override
