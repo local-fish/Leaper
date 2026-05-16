@@ -12,6 +12,7 @@ import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/course_data.dart';
 import 'package:leaper/providers/auth_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CourseDetailArgs {
   final int courseId;
@@ -470,7 +471,7 @@ class _SessionState extends ConsumerState<Session> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("Materials: "),
-                    ...?data.files?.map((x) => Text(x.name)),
+                    ...?data.files?.map((x) => SessionMaterial(data: x)),
                   ],
                 ),
               ),
@@ -478,6 +479,39 @@ class _SessionState extends ConsumerState<Session> {
           },
         ),
       ],
+    );
+  }
+}
+
+class SessionMaterial extends ConsumerWidget {
+  final FileData data;
+  const SessionMaterial({super.key, required this.data});
+  Future<void> downloadFile(WidgetRef ref, String fileId) async {
+    final client = http.Client();
+    final request = http.Request(
+      'GET',
+      Uri.parse('${dotenv.env['API_URL']}/file/$fileId'),
+    );
+    request.headers['Authorization'] = 'Bearer ${ref.read(authProvider).value}';
+    request.followRedirects = false;
+    final response = await client.send(request);
+
+    if (response.statusCode == 301 || response.statusCode == 302) {
+      final redirectUrl = response.headers['location']!;
+      await launchUrl(Uri.parse(redirectUrl));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return GestureDetector(
+      onTap: () => downloadFile(ref, data.id),
+      child: Row(
+        children: [
+          Icon(Icons.file_download),
+          Text("${data.name} • ${data.size}"),
+        ],
+      ),
     );
   }
 }
