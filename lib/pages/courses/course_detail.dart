@@ -470,7 +470,7 @@ class _SessionState extends ConsumerState<Session> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Materials: "),
+                    if (data.files!.isNotEmpty) Text("Materials: "),
                     ...?data.files?.map((x) => SessionMaterial(data: x)),
                   ],
                 ),
@@ -506,12 +506,7 @@ class SessionMaterial extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: () => downloadFile(ref, data.id),
-      child: Row(
-        children: [
-          Icon(Icons.file_download),
-          Text("${data.name} • ${data.size}"),
-        ],
-      ),
+      child: Row(children: [Icon(Icons.file_download), Text(data.name)]),
     );
   }
 }
