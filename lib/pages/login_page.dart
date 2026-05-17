@@ -34,14 +34,30 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     if (response.statusCode == 200) {
       final token = jsonDecode(response.body)['token'];
-      ref.read(userInfoProvider.notifier).login(_usernameController.text);
+      final UserInfo info = await getUserInfo(token);
+      ref.read(userInfoProvider.notifier).login(info);
       ref.read(authProvider.notifier).login(token);
       scaffoldMessenger.clearSnackBars();
-      navigator.pushReplacementNamed('/main');
+      navigator.pushReplacementNamed('/');
     } else {
       scaffoldMessenger.showSnackBar(
         SnackBar(content: Text("Invalid username or password!")),
       );
+    }
+  }
+
+  Future<UserInfo> getUserInfo(String token) async {
+    final response = await http.get(
+      Uri.parse('${dotenv.env['API_URL']}/user/info'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      final out = jsonDecode(response.body);
+      print(response.body);
+      return UserInfo.fromJson(out);
+    } else {
+      throw Exception('Failed to fetch user info');
     }
   }
 

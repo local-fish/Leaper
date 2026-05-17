@@ -48,7 +48,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
   @override
   // Note: This page is part of MainLayout so it doesn't use ScaffoldBackground
   Widget build(BuildContext context) {
-    String name = ref.watch(userInfoProvider).value ?? "null";
+    String name = ref.watch(userInfoProvider).value?.name ?? "null";
     return Center(
       child: Padding(
         padding: EdgeInsets.all(8),
