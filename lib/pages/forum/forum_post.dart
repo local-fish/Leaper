@@ -10,6 +10,7 @@ import 'package:leaper/core/components/back_nav_heading.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/forum_data.dart';
 import 'package:leaper/providers/auth_provider.dart';
+import 'package:leaper/providers/user_info_provider.dart';
 
 class ForumPostArgs {
   final int forumId;
@@ -29,10 +30,20 @@ class _ForumPostState extends ConsumerState<ForumPost> {
 
   int? _replyTarget;
   String? _replyTargetUser;
+  CommentData? _editTarget;
 
   void setReplyTarget(int? id, String? user) {
+    setState(() => _editTarget = null);
     setState(() => _replyTarget = id);
     setState(() => _replyTargetUser = user);
+  }
+
+  void onEdit(CommentData? data) {
+    setState(() => _replyTarget = null);
+    setState(() => _replyTargetUser = null);
+    setState(() => _editTarget = data);
+    if (data == null) _commentController.text = "";
+    _commentController.text = data!.body;
   }
 
   @override
@@ -62,6 +73,28 @@ class _ForumPostState extends ConsumerState<ForumPost> {
       commentData = fetchForumComments(ref, _args!);
       setReplyTarget(null, null);
     });
+  }
+
+  Future<void> editComment(WidgetRef ref) async {
+    final body = _commentController.text.trim();
+    if (body.isEmpty) return;
+
+    final response = await http.patch(
+      Uri.parse('${dotenv.env['API_URL']}/forum/comment/edit'),
+      headers: {
+        'Authorization': 'Bearer ${ref.read(authProvider).value}',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'id': _editTarget!.id, 'body': body}),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      _commentController.clear();
+      setState(() => _replyTarget = null);
+      await onRefresh();
+    } else {
+      throw Exception('Failed to post comment');
+    }
   }
 
   Future<void> postComment(WidgetRef ref) async {
@@ -160,26 +193,27 @@ class _ForumPostState extends ConsumerState<ForumPost> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          data.title,
-                                          style: GoogleFonts.montserrat(
-                                            fontSize: FontSizes.medium,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    minWidth: double.infinity,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        data.title,
+                                        style: GoogleFonts.montserrat(
+                                          fontSize: FontSizes.medium,
+                                          fontWeight: FontWeight.w600,
                                         ),
-                                        Text("Posted by ${data.user.name}"),
-                                        Text(
-                                          "Posted on ${DateFormat('dd MMM yyyy • HH:mm:ss').format(data.time)}",
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                      ),
+                                      Text("Posted by ${data.user.name}"),
+                                      Text(
+                                        "Posted on ${DateFormat('dd MMM yyyy • HH:mm:ss').format(data.time)}",
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 Divider(color: Color(0xFFAAAAAA)),
                                 Text(data.body ?? ""),
@@ -226,6 +260,8 @@ class _ForumPostState extends ConsumerState<ForumPost> {
                                                   item: x,
                                                   root: data,
                                                   onReply: setReplyTarget,
+                                                  onRefresh: onRefresh,
+                                                  onEdit: onEdit,
                                                 ),
 
                                                 Divider(
@@ -266,6 +302,18 @@ class _ForumPostState extends ConsumerState<ForumPost> {
                             ),
                           ],
                         ),
+                      if (_editTarget != null)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Editing comment"),
+                            IconButton(
+                              onPressed: () => onEdit(null),
+                              icon: Icon(Icons.close),
+                            ),
+                          ],
+                        ),
+
                       Row(
                         children: [
                           Expanded(
@@ -281,7 +329,11 @@ class _ForumPostState extends ConsumerState<ForumPost> {
                           ),
                           IconButton(
                             icon: Icon(Icons.send),
-                            onPressed: () => postComment(ref),
+                            onPressed: () => {
+                              _editTarget == null
+                                  ? postComment(ref)
+                                  : editComment(ref),
+                            },
                           ),
                         ],
                       ),
@@ -302,12 +354,16 @@ class CommentWidget extends ConsumerStatefulWidget {
   final CommentData item;
   final ForumData root;
   final void Function(int? id, String? user) onReply;
+  final void Function(CommentData? data) onEdit;
+  final void Function() onRefresh;
   const CommentWidget({
     super.key,
     this.parent,
     required this.item,
     required this.root,
     required this.onReply,
+    required this.onRefresh,
+    required this.onEdit,
   });
 
   @override
@@ -334,6 +390,13 @@ class _CommentWidgetState extends ConsumerState<CommentWidget> {
     } else {
       throw Exception('Failed to fetch comments');
     }
+  }
+
+  Future<void> deleteComment(WidgetRef ref, int commentId) async {
+    await http.delete(
+      Uri.parse('${dotenv.env['API_URL']}/forum/comment/$commentId'),
+      headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
+    );
   }
 
   @override
@@ -397,6 +460,8 @@ class _CommentWidgetState extends ConsumerState<CommentWidget> {
                                   root: root,
                                   parent: item.id,
                                   onReply: widget.onReply,
+                                  onRefresh: widget.onRefresh,
+                                  onEdit: widget.onEdit,
                                 ),
                               )
                               .toList(),
@@ -408,19 +473,63 @@ class _CommentWidgetState extends ConsumerState<CommentWidget> {
               ),
             ] else
               SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () {
-                widget.onReply(item.id, item.user.name);
-              },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                minimumSize: Size(0, 0), // removes default minimum size
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text(
-                "Reply",
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    widget.onReply(item.id, item.user.name);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    minimumSize: Size(0, 0), // removes default minimum size
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    "Reply",
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+                if (item.user.id ==
+                    ref.watch(userInfoProvider).value?.userId) ...[
+                  SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      widget.onEdit(item);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      minimumSize: Size(0, 0), // removes default minimum size
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      "Edit",
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await deleteComment(ref, item.id);
+                      widget.onRefresh();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      minimumSize: Size(0, 0), // removes default minimum size
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      "Delete",
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ),
