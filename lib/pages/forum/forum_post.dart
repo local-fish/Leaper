@@ -25,6 +25,22 @@ class ForumPost extends ConsumerStatefulWidget {
 class _ForumPostState extends ConsumerState<ForumPost> {
   Future<ForumData>? forumData;
   Future<List<CommentData>>? commentData;
+  final _commentController = TextEditingController();
+
+  int? _replyTarget;
+  String? _replyTargetUser;
+
+  void setReplyTarget(int? id, String? user) {
+    setState(() => _replyTarget = id);
+    setState(() => _replyTargetUser = user);
+  }
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
   ForumPostArgs? _args;
   // Force Refresh for Replies on Forced Refresh
   int _refreshKey = 0;
@@ -44,7 +60,34 @@ class _ForumPostState extends ConsumerState<ForumPost> {
       _refreshKey++; // Refreshes Replies
       forumData = fetchForumPost(ref, _args!);
       commentData = fetchForumComments(ref, _args!);
+      setReplyTarget(null, null);
     });
+  }
+
+  Future<void> postComment(WidgetRef ref) async {
+    final body = _commentController.text.trim();
+    if (body.isEmpty) return;
+
+    final response = await http.post(
+      Uri.parse('${dotenv.env['API_URL']}/forum/comment/new'),
+      headers: {
+        'Authorization': 'Bearer ${ref.read(authProvider).value}',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'forumId': _args?.forumId,
+        if (_replyTarget != null) 'parentId': _replyTarget,
+        'body': body,
+      }),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      _commentController.clear();
+      setState(() => _replyTarget = null);
+      await onRefresh();
+    } else {
+      throw Exception('Failed to post comment');
+    }
   }
 
   Future<ForumData> fetchForumPost(WidgetRef ref, ForumPostArgs args) async {
@@ -104,7 +147,6 @@ class _ForumPostState extends ConsumerState<ForumPost> {
                     );
                   }
                   final data = snapshot.data!;
-                  // TODO: Add Area for Comments
                   return Expanded(
                     child: RefreshIndicator(
                       onRefresh: onRefresh,
@@ -183,6 +225,7 @@ class _ForumPostState extends ConsumerState<ForumPost> {
                                                 CommentWidget(
                                                   item: x,
                                                   root: data,
+                                                  onReply: setReplyTarget,
                                                 ),
 
                                                 Divider(
@@ -204,6 +247,48 @@ class _ForumPostState extends ConsumerState<ForumPost> {
                   );
                 },
               ),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: Color(0xFFAAAAAA))),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Column(
+                    children: [
+                      if (_replyTargetUser != null)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Replying to $_replyTargetUser"),
+                            IconButton(
+                              onPressed: () => setReplyTarget(null, null),
+                              icon: Icon(Icons.close),
+                            ),
+                          ],
+                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _commentController,
+                              maxLines: null,
+                              minLines: 1,
+                              decoration: InputDecoration(
+                                hintText: "Add a comment...",
+                              ),
+                              style: TextStyle(fontSize: FontSizes.small),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.send),
+                            onPressed: () => postComment(ref),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -216,11 +301,13 @@ class CommentWidget extends ConsumerStatefulWidget {
   final int? parent;
   final CommentData item;
   final ForumData root;
+  final void Function(int? id, String? user) onReply;
   const CommentWidget({
     super.key,
     this.parent,
     required this.item,
     required this.root,
+    required this.onReply,
   });
 
   @override
@@ -301,7 +388,7 @@ class _CommentWidgetState extends ConsumerState<CommentWidget> {
                       }
                       final replies = snapshot.data!;
                       return Padding(
-                        padding: EdgeInsets.only(left: 8),
+                        padding: EdgeInsets.only(left: 8, bottom: 8),
                         child: Column(
                           children: replies
                               .map(
@@ -309,6 +396,7 @@ class _CommentWidgetState extends ConsumerState<CommentWidget> {
                                   item: x,
                                   root: root,
                                   parent: item.id,
+                                  onReply: widget.onReply,
                                 ),
                               )
                               .toList(),
@@ -318,7 +406,22 @@ class _CommentWidgetState extends ConsumerState<CommentWidget> {
                   ),
                 ],
               ),
-            ],
+            ] else
+              SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                widget.onReply(item.id, item.user.name);
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                minimumSize: Size(0, 0), // removes default minimum size
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(
+                "Reply",
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
           ],
         ),
       ),
