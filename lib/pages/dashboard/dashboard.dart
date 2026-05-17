@@ -179,19 +179,6 @@ class _DashboardState extends ConsumerState<Dashboard> {
                 },
               ),
             ),
-            Padding(padding: EdgeInsets.all(8)),
-            HeadingCard(
-              heading: Text(
-                "Notifications",
-                textAlign: TextAlign.center,
-                style: GoogleFonts.montserrat(
-                  fontSize: FontSizes.small,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              // TODO: Add Content
-              content: Text("Temp Content"),
-            ),
           ],
         ),
       ),
