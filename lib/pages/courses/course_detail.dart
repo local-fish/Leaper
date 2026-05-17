@@ -7,10 +7,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:leaper/core/components/back_nav_heading.dart';
+import 'package:leaper/core/components/custom_icon_button.dart';
 import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/course_data.dart';
+import 'package:leaper/pages/forum/forum.dart';
 import 'package:leaper/providers/auth_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -181,6 +183,39 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                               ),
                             ],
                           ),
+                        ),
+                        SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Column(
+                              children: [
+                                CustomIconButton(
+                                  onPressed: () => Navigator.pushNamed(
+                                    context,
+                                    '/forum',
+                                    arguments: ForumArgs(
+                                      courseId: args.courseId,
+                                    ),
+                                  ),
+                                  icon: Icons.chat,
+                                ),
+                                Text("Forum"),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                CustomIconButton(
+                                  onPressed: () => Navigator.pushNamed(
+                                    context,
+                                    '/course/tasks',
+                                  ),
+                                  icon: Icons.task_alt,
+                                ),
+                                Text("Tasks"),
+                              ],
+                            ),
+                          ],
                         ),
                         SizedBox(height: 12),
                         HeadingCard(
