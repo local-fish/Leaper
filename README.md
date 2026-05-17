@@ -1,16 +1,28 @@
-# leaper
+<div align="center">
+<img src="doc/icon.png" height="100px">
+</div>
+<br/>
 
-A new Flutter project.
+# Leaper: Digital Learning Platform
 
-## Getting Started
+Leaper is a digital platform to manage learning system.
 
-This project is a starting point for a Flutter application.
+This is the frontend for the Leaper project, a basic LMS built around Nest.js and Flutter. This frontend is written in Flutter
 
-A few resources to get you started if this is your first Flutter project:
+> [!NOTE]
+> This Project is Divided into two Repos. For the Back End Repo, see
+> https://github.com/local-fish/Leaper-API
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+# Leaper - Flutter App
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Requirements
+
+- [Flutter SDK](https://flutter.dev/docs/get-started/install) (with Dart)
+- [Android SDK](https://developer.android.com/studio) (minSdk 23, compileSdk 36)
+- A running instance of the [Leaper API](https://github.com/local-fish/Leaper-API)
+
+## Setup
+
+1. Clone the repository
+2. Run `flutter pub get` to install dependencies
+3. Create a `.env` file in the root of the project, or copy `.env.dev` if you're running on local machine, or `.env.prod` if you're running using the deployed version
