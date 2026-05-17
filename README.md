@@ -5,7 +5,7 @@
 
 # Leaper: Digital Learning Platform
 
-Leaper is a digital platform to manage learning system.
+Leaper is a digital platform to manage learning systems.
 
 This is the frontend for the Leaper project, a basic LMS built around Nest.js and Flutter. This frontend is written in Flutter
 
@@ -14,6 +14,21 @@ This is the frontend for the Leaper project, a basic LMS built around Nest.js an
 > https://github.com/local-fish/Leaper-API
 
 # Leaper - Flutter App
+
+Current Features:
+- Course
+  - Course Details
+  - Course Participants
+  - Course Sessions
+  - Session Materials
+- Forum
+  - Forum Post List
+  - Create, Edit, Delete Post
+  - Forum Comments
+  - Create, Edit, Delete Comments
+- Schedule
+- Grades
+- Profile
 
 ## Requirements
 
@@ -25,4 +40,11 @@ This is the frontend for the Leaper project, a basic LMS built around Nest.js an
 
 1. Clone the repository
 2. Run `flutter pub get` to install dependencies
-3. Create a `.env` file in the root of the project, or copy `.env.dev` if you're running on local machine, or `.env.prod` if you're running using the deployed version
+3. Create a `.env` file in the root of the project, or copy `.env.dev` if you're running on local machine , or `.env.prod` if you're running using the deployed version
+4. Run `flutter run` to start the app
+
+## Environment
+
+| Variable | Description |
+|----------|-------------|
+| `API_URL` | URL of the Leaper API |
