@@ -26,6 +26,8 @@ class _ForumPostState extends ConsumerState<ForumPost> {
   Future<ForumData>? forumData;
   Future<List<CommentData>>? commentData;
   ForumPostArgs? _args;
+  // Force Refresh for Replies on Forced Refresh
+  int _refreshKey = 0;
 
   @override
   void didChangeDependencies() {
@@ -33,6 +35,16 @@ class _ForumPostState extends ConsumerState<ForumPost> {
     _args = ModalRoute.of(context)!.settings.arguments as ForumPostArgs;
     forumData ??= fetchForumPost(ref, _args!);
     commentData ??= fetchForumComments(ref, _args!);
+  }
+
+  Future<void> onRefresh() async {
+    setState(() {
+      forumData = null;
+      commentData = null;
+      _refreshKey++; // Refreshes Replies
+      forumData = fetchForumPost(ref, _args!);
+      commentData = fetchForumComments(ref, _args!);
+    });
   }
 
   Future<ForumData> fetchForumPost(WidgetRef ref, ForumPostArgs args) async {
@@ -94,88 +106,97 @@ class _ForumPostState extends ConsumerState<ForumPost> {
                   final data = snapshot.data!;
                   // TODO: Add Area for Comments
                   return Expanded(
-                    child: SingleChildScrollView(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(minWidth: double.infinity),
-                        child: Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        data.title,
-                                        style: GoogleFonts.montserrat(
-                                          fontSize: FontSizes.medium,
-                                          fontWeight: FontWeight.w600,
+                    child: RefreshIndicator(
+                      onRefresh: onRefresh,
+                      child: SingleChildScrollView(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minWidth: double.infinity,
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          data.title,
+                                          style: GoogleFonts.montserrat(
+                                            fontSize: FontSizes.medium,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
-                                      ),
-                                      Text("Posted by ${data.user.name}"),
-                                      Text(
-                                        "Posted on ${DateFormat('dd MMM yyyy • HH:mm:ss').format(data.time)}",
-                                      ),
-                                    ],
+                                        Text("Posted by ${data.user.name}"),
+                                        Text(
+                                          "Posted on ${DateFormat('dd MMM yyyy • HH:mm:ss').format(data.time)}",
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                Divider(color: Color(0xFFAAAAAA)),
+                                Text(data.body ?? ""),
+                                Divider(color: Color(0xFFAAAAAA)),
+                                if (data.comments! > 0) ...[
+                                  Text(
+                                    "Comments",
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: FontSizes.small,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  FutureBuilder(
+                                    future: commentData,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return Column(
+                                          children: [
+                                            Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
+                                          ],
+                                        );
+                                      } else if (snapshot.hasError) {
+                                        return Column(
+                                          children: [
+                                            Center(
+                                              child: Text(
+                                                "Something went wrong ${snapshot.error}",
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }
+                                      final commentData = snapshot.data!;
+                                      return Column(
+                                        key: ValueKey(_refreshKey),
+                                        children: commentData
+                                            .expand(
+                                              (x) => {
+                                                CommentWidget(
+                                                  item: x,
+                                                  root: data,
+                                                ),
+
+                                                Divider(
+                                                  color: Color(0xFFAAAAAA),
+                                                ),
+                                              },
+                                            )
+                                            .toList(),
+                                      );
+                                    },
                                   ),
                                 ],
-                              ),
-                              Divider(color: Color(0xFFAAAAAA)),
-                              Text(data.body ?? ""),
-                              Divider(color: Color(0xFFAAAAAA)),
-                              if (data.comments! > 0) ...[
-                                Text(
-                                  "Comments",
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: FontSizes.small,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                FutureBuilder(
-                                  future: commentData,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return Column(
-                                        children: [
-                                          Center(
-                                            child: CircularProgressIndicator(),
-                                          ),
-                                        ],
-                                      );
-                                    } else if (snapshot.hasError) {
-                                      return Column(
-                                        children: [
-                                          Center(
-                                            child: Text(
-                                              "Something went wrong ${snapshot.error}",
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }
-                                    final commentData = snapshot.data!;
-                                    return Column(
-                                      children: commentData
-                                          .expand(
-                                            (x) => {
-                                              CommentWidget(
-                                                item: x,
-                                                root: data,
-                                              ),
-
-                                              Divider(color: Color(0xFFAAAAAA)),
-                                            },
-                                          )
-                                          .toList(),
-                                    );
-                                  },
-                                ),
                               ],
-                            ],
+                            ),
                           ),
                         ),
                       ),
@@ -235,13 +256,16 @@ class _CommentWidgetState extends ConsumerState<CommentWidget> {
     return Container(
       decoration: widget.parent != null
           ? BoxDecoration(
-              border: Border(left: BorderSide(color: Colors.grey, width: 2)),
+              border: Border(
+                left: BorderSide(color: Color(0xFFAAAAAA), width: 1.5),
+              ),
             )
           : null,
       padding: EdgeInsets.only(left: widget.parent != null ? 6 : 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(height: 8),
           Text(
             "${item.user.name} • ${DateFormat('dd MMM yyyy • HH:mm:ss').format(item.time)}",
             style: TextStyle(fontWeight: FontWeight.w500),
@@ -252,7 +276,7 @@ class _CommentWidgetState extends ConsumerState<CommentWidget> {
             ExpansionTile(
               tilePadding: EdgeInsets.all(0),
               onExpansionChanged: (expanded) {
-                if (expanded) {
+                if (expanded && replies == null) {
                   setState(() {
                     replies = fetchForumReply(ref, root.id, item.id);
                   });
