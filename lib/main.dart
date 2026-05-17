@@ -7,9 +7,8 @@ import 'package:leaper/pages/login_page.dart';
 import 'package:leaper/providers/auth_provider.dart';
 
 void main() async {
-  // Remove all Prefs
-  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   runApp(ProviderScope(child: MyApp()));
 }
 
