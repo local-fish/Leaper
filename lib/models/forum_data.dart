@@ -44,3 +44,27 @@ class ForumPersonData {
       _$ForumPersonDataFromJson(json);
   Map<String, dynamic> toJson() => _$ForumPersonDataToJson(this);
 }
+
+@JsonSerializable()
+class CommentData {
+  int id;
+  DateTime time;
+  String body;
+  ForumPersonData user;
+  int replies;
+
+  CommentData({
+    required this.id,
+    required this.time,
+    required this.body,
+    required this.user,
+    required this.replies,
+  });
+  static List<CommentData> fromJsonList(List<dynamic> json) {
+    return json.map((e) => CommentData.fromJson(e)).toList();
+  }
+
+  factory CommentData.fromJson(Map<String, dynamic> json) =>
+      _$CommentDataFromJson(json);
+  Map<String, dynamic> toJson() => _$CommentDataToJson(this);
+}

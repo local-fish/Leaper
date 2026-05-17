@@ -34,3 +34,20 @@ ForumPersonData _$ForumPersonDataFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$ForumPersonDataToJson(ForumPersonData instance) =>
     <String, dynamic>{'id': instance.id, 'name': instance.name};
+
+CommentData _$CommentDataFromJson(Map<String, dynamic> json) => CommentData(
+  id: (json['id'] as num).toInt(),
+  time: DateTime.parse(json['time'] as String),
+  body: json['body'] as String,
+  user: ForumPersonData.fromJson(json['user'] as Map<String, dynamic>),
+  replies: (json['replies'] as num).toInt(),
+);
+
+Map<String, dynamic> _$CommentDataToJson(CommentData instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'time': instance.time.toIso8601String(),
+      'body': instance.body,
+      'user': instance.user,
+      'replies': instance.replies,
+    };
