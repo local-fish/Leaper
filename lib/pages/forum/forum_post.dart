@@ -262,62 +262,65 @@ class _CommentWidgetState extends ConsumerState<CommentWidget> {
             )
           : null,
       padding: EdgeInsets.only(left: widget.parent != null ? 6 : 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 8),
-          Text(
-            "${item.user.name} • ${DateFormat('dd MMM yyyy • HH:mm:ss').format(item.time)}",
-            style: TextStyle(fontWeight: FontWeight.w500),
-          ),
-          SizedBox(height: 8),
-          Text(item.body),
-          if (item.replies > 0) ...[
-            ExpansionTile(
-              tilePadding: EdgeInsets.all(0),
-              onExpansionChanged: (expanded) {
-                if (expanded && replies == null) {
-                  setState(() {
-                    replies = fetchForumReply(ref, root.id, item.id);
-                  });
-                }
-              },
-              minTileHeight: 24,
-              title: Text(
-                "View ${item.replies} replies",
-                style: TextStyle(fontSize: FontSizes.verySmall),
-              ),
-              shape: Border(),
-              children: [
-                FutureBuilder(
-                  future: replies,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text("Something went wrong"));
-                    }
-                    final replies = snapshot.data!;
-                    return Padding(
-                      padding: EdgeInsets.only(left: 8),
-                      child: Column(
-                        children: replies
-                            .map(
-                              (x) => CommentWidget(
-                                item: x,
-                                root: root,
-                                parent: item.id,
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    );
-                  },
-                ),
-              ],
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minWidth: double.infinity),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 8),
+            Text(
+              "${item.user.name} • ${DateFormat('dd MMM yyyy • HH:mm:ss').format(item.time)}",
+              style: TextStyle(fontWeight: FontWeight.w500),
             ),
+            SizedBox(height: 8),
+            Text(item.body),
+            if (item.replies > 0) ...[
+              ExpansionTile(
+                tilePadding: EdgeInsets.all(0),
+                onExpansionChanged: (expanded) {
+                  if (expanded && replies == null) {
+                    setState(() {
+                      replies = fetchForumReply(ref, root.id, item.id);
+                    });
+                  }
+                },
+                minTileHeight: 24,
+                title: Text(
+                  "View ${item.replies} replies",
+                  style: TextStyle(fontSize: FontSizes.verySmall),
+                ),
+                shape: Border(),
+                children: [
+                  FutureBuilder(
+                    future: replies,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text("Something went wrong"));
+                      }
+                      final replies = snapshot.data!;
+                      return Padding(
+                        padding: EdgeInsets.only(left: 8),
+                        child: Column(
+                          children: replies
+                              .map(
+                                (x) => CommentWidget(
+                                  item: x,
+                                  root: root,
+                                  parent: item.id,
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
