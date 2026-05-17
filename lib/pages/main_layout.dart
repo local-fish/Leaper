@@ -13,7 +13,6 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
-  // TODO: Add Notification, News, and Profile Pages
   @override
   Widget build(BuildContext context) {
     final pages = [Dashboard(), NotificationList(), Profile()];
