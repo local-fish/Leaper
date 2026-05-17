@@ -27,12 +27,13 @@ class Forum extends ConsumerStatefulWidget {
 
 class _ForumState extends ConsumerState<Forum> {
   Future<List<ForumData>>? forumData;
+  ForumArgs? _args;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args = ModalRoute.of(context)!.settings.arguments as ForumArgs;
-    forumData ??= fetchForumList(ref, args);
+    _args = ModalRoute.of(context)!.settings.arguments as ForumArgs;
+    forumData ??= fetchForumList(ref, _args!);
   }
 
   Future<List<ForumData>> fetchForumList(WidgetRef ref, ForumArgs args) async {
@@ -47,6 +48,12 @@ class _ForumState extends ConsumerState<Forum> {
     } else {
       throw Exception('Failed to fetch forum');
     }
+  }
+
+  Future<void> _onRefresh() async {
+    final newFuture = fetchForumList(ref, _args!);
+    setState(() => forumData = newFuture);
+    await newFuture;
   }
 
   @override
@@ -74,18 +81,21 @@ class _ForumState extends ConsumerState<Forum> {
               final data = snapshot.data!;
               data.sort((a, b) => b.time.compareTo(a.time));
               return Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: EdgeInsets.all(8),
-                    child: Column(
-                      children: data
-                          .expand(
-                            (x) => {
-                              ForumListCard(item: x),
-                              SizedBox(height: 8),
-                            },
-                          )
-                          .toList(),
+                child: RefreshIndicator(
+                  onRefresh: _onRefresh,
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Column(
+                        children: data
+                            .expand(
+                              (x) => {
+                                ForumListCard(item: x),
+                                SizedBox(height: 8),
+                              },
+                            )
+                            .toList(),
+                      ),
                     ),
                   ),
                 ),
