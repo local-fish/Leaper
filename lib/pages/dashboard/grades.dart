@@ -25,7 +25,6 @@ class Grades extends ConsumerWidget {
 
     if (response.statusCode == 200) {
       final list = jsonDecode(response.body) as List;
-      print(response.body);
 
       return list.map((e) => GradeData.fromJson(e)).toList();
     } else {
@@ -47,9 +46,7 @@ class Grades extends ConsumerWidget {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Something went wrong ${snapshot}'),
-                    );
+                    return Center(child: Text('Something went wrong'));
                   }
                   final grades = snapshot.data!;
                   return GradeListItem(items: grades);
