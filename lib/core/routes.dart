@@ -4,6 +4,7 @@ import 'package:leaper/pages/dashboard/course.dart';
 import 'package:leaper/pages/dashboard/grades.dart';
 import 'package:leaper/pages/dashboard/tasks.dart';
 import 'package:leaper/pages/forum/forum.dart';
+import 'package:leaper/pages/forum/forum_post.dart';
 import 'package:leaper/pages/main_layout.dart';
 import 'package:leaper/main.dart';
 import 'package:leaper/pages/dashboard/schedule.dart';
@@ -25,4 +26,5 @@ final Map<String, WidgetBuilder> routes = {
 
   // Forum
   '/forum': (context) => Forum(),
+  '/forum/post': (context) => ForumPost(),
 };

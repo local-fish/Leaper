@@ -11,6 +11,7 @@ import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/forum_data.dart';
+import 'package:leaper/pages/forum/forum_post.dart';
 import 'package:leaper/providers/auth_provider.dart';
 
 class ForumArgs {
@@ -103,37 +104,46 @@ class ForumListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HeadingCard(
-      heading: Padding(
-        padding: EdgeInsets.only(left: 8, right: 8),
-        child: Text(
-          item.title,
-          style: GoogleFonts.montserrat(
-            fontSize: FontSizes.small,
-            fontWeight: FontWeight.w600,
+    return GestureDetector(
+      onTap: () => {
+        Navigator.pushNamed(
+          context,
+          '/forum/post',
+          arguments: ForumPostArgs(forumId: item.id),
+        ),
+      },
+      child: HeadingCard(
+        heading: Padding(
+          padding: EdgeInsets.only(left: 8, right: 8),
+          child: Text(
+            item.title,
+            style: GoogleFonts.montserrat(
+              fontSize: FontSizes.small,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-      ),
-      content: ConstrainedBox(
-        constraints: BoxConstraints(minWidth: double.infinity),
-        child: Table(
-          columnWidths: const <int, TableColumnWidth>{
-            0: IntrinsicColumnWidth(),
-            1: FlexColumnWidth(),
-          },
-          children: <TableRow>[
-            TableRow(
-              children: [
-                Text("Posted on "),
-                Text(
-                  ": ${DateFormat('dd MMM yyyy • HH:mm:ss').format(item.time)}",
-                ),
-              ],
-            ),
-            TableRow(
-              children: [Text("Posted by"), Text(": ${item.user.name}")],
-            ),
-          ],
+        content: ConstrainedBox(
+          constraints: BoxConstraints(minWidth: double.infinity),
+          child: Table(
+            columnWidths: const <int, TableColumnWidth>{
+              0: IntrinsicColumnWidth(),
+              1: FlexColumnWidth(),
+            },
+            children: <TableRow>[
+              TableRow(
+                children: [
+                  Text("Posted on "),
+                  Text(
+                    ": ${DateFormat('dd MMM yyyy • HH:mm:ss').format(item.time)}",
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [Text("Posted by"), Text(": ${item.user.name}")],
+              ),
+            ],
+          ),
         ),
       ),
     );
