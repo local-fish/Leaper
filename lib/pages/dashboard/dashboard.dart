@@ -80,6 +80,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                     Text("Course"),
                   ],
                 ),
+                /*
                 Column(
                   children: [
                     DashboardButton(
@@ -92,6 +93,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
                     Text("Task"),
                   ],
                 ),
+                */
                 Column(
                   children: [
                     DashboardButton(

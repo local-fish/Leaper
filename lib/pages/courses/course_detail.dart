@@ -136,6 +136,42 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Column(
+                              children: [
+                                CustomIconButton(
+                                  onPressed: () => Navigator.pushNamed(
+                                    context,
+                                    '/forum',
+                                    arguments: ForumArgs(
+                                      courseId: args.courseId,
+                                    ),
+                                  ),
+                                  icon: Icons.chat,
+                                ),
+                                Text("Forum"),
+                              ],
+                            ),
+                            /*
+                            Column(
+                              children: [
+                                CustomIconButton(
+                                  onPressed: () => Navigator.pushNamed(
+                                    context,
+                                    '/course/tasks',
+                                  ),
+                                  icon: Icons.task_alt,
+                                ),
+                                Text("Tasks"),
+                              ],
+                            ),
+                            */
+                          ],
+                        ),
+
+                        SizedBox(height: 12),
                         HeadingCard(
                           heading: Padding(
                             padding: EdgeInsets.only(left: 8),
@@ -183,39 +219,6 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                               ),
                             ],
                           ),
-                        ),
-                        SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Column(
-                              children: [
-                                CustomIconButton(
-                                  onPressed: () => Navigator.pushNamed(
-                                    context,
-                                    '/forum',
-                                    arguments: ForumArgs(
-                                      courseId: args.courseId,
-                                    ),
-                                  ),
-                                  icon: Icons.chat,
-                                ),
-                                Text("Forum"),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                CustomIconButton(
-                                  onPressed: () => Navigator.pushNamed(
-                                    context,
-                                    '/course/tasks',
-                                  ),
-                                  icon: Icons.task_alt,
-                                ),
-                                Text("Tasks"),
-                              ],
-                            ),
-                          ],
                         ),
                         SizedBox(height: 12),
                         HeadingCard(
