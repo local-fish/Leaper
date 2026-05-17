@@ -11,8 +11,10 @@ import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/forum_data.dart';
+import 'package:leaper/pages/forum/forum_new_post.dart';
 import 'package:leaper/pages/forum/forum_post.dart';
 import 'package:leaper/providers/auth_provider.dart';
+import 'package:leaper/providers/user_info_provider.dart';
 
 class ForumArgs {
   final int courseId;
@@ -51,9 +53,8 @@ class _ForumState extends ConsumerState<Forum> {
   }
 
   Future<void> _onRefresh() async {
-    final newFuture = fetchForumList(ref, _args!);
-    setState(() => forumData = newFuture);
-    await newFuture;
+    setState(() => forumData = null);
+    setState(() => forumData = fetchForumList(ref, _args!));
   }
 
   @override
@@ -87,14 +88,27 @@ class _ForumState extends ConsumerState<Forum> {
                     child: Padding(
                       padding: EdgeInsets.all(8),
                       child: Column(
-                        children: data
-                            .expand(
-                              (x) => {
-                                ForumListCard(item: x),
-                                SizedBox(height: 8),
-                              },
-                            )
-                            .toList(),
+                        children: [
+                          ...data.expand(
+                            (x) => {
+                              ForumListCard(item: x, onReload: _onRefresh),
+                              SizedBox(height: 8),
+                            },
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/forum/post/new',
+                                arguments: ForumNewPostArgs(
+                                  courseId: _args!.courseId,
+                                  isEditing: false,
+                                ),
+                              ).then((_) => _onRefresh());
+                            },
+                            child: Text("Create New Post"),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -108,12 +122,33 @@ class _ForumState extends ConsumerState<Forum> {
   }
 }
 
-class ForumListCard extends StatelessWidget {
+class ForumListCard extends ConsumerWidget {
   final ForumData item;
-  const ForumListCard({super.key, required this.item});
+  final void Function() onReload;
+  const ForumListCard({super.key, required this.item, required this.onReload});
+  Future<ForumData> fetchForumPost(WidgetRef ref, int args) async {
+    final response = await http.get(
+      Uri.parse('${dotenv.env['API_URL']}/forum/$args'),
+      headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
+    );
+
+    if (response.statusCode == 200) {
+      final out = jsonDecode(response.body);
+      return ForumData.fromJson(out);
+    } else {
+      throw Exception('Failed to fetch forum');
+    }
+  }
+
+  Future<void> deletePost(WidgetRef ref, int forumId) async {
+    await http.delete(
+      Uri.parse('${dotenv.env['API_URL']}/forum/$forumId'),
+      headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
+    );
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: () => {
         Navigator.pushNamed(
@@ -121,6 +156,54 @@ class ForumListCard extends StatelessWidget {
           '/forum/post',
           arguments: ForumPostArgs(forumId: item.id),
         ),
+      },
+      onLongPress: () async {
+        final currentUser = ref.read(userInfoProvider).value;
+        if (currentUser?.userId != item.user.id) {
+          return; // not your post, get out
+        }
+
+        final ctx = context; // save before async
+        final ForumData forumData = await fetchForumPost(ref, item.id);
+
+        if (!ctx.mounted) return;
+
+        showModalBottomSheet(
+          context: ctx,
+          builder: (context) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.edit),
+                title: Text("Edit"),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(
+                    context,
+                    '/forum/post/new',
+                    arguments: ForumNewPostArgs(
+                      courseId: forumData.courseId ?? 0,
+                      isEditing: true,
+                      postId: forumData.id,
+                      body: forumData.body,
+                      title: forumData.title,
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.delete),
+                title: Text("Delete"),
+                onTap: () async {
+                  final ctx = context; // save before async
+                  await deletePost(ref, item.id);
+                  if (!ctx.mounted) return;
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        ).then((_) => onReload());
       },
       child: HeadingCard(
         heading: Padding(
