@@ -15,7 +15,7 @@ class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
   @override
   Widget build(BuildContext context) {
-    final pages = [Dashboard(), NotificationList(), Profile()];
+    final pages = [Dashboard(), Profile()];
     return ScaffoldBackground(
       bottomBar: DecoratedBox(
         decoration: BoxDecoration(
@@ -38,10 +38,7 @@ class _MainLayoutState extends State<MainLayout> {
             backgroundColor: Color(0xC7FFFFFF),
             items: [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.notifications),
-                label: "Notification",
-              ),
+
               BottomNavigationBarItem(
                 icon: Icon(Icons.person),
                 label: "Profile",
