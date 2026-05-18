@@ -299,7 +299,7 @@ class EventContainer extends StatelessWidget {
   String renderEventType(EventType event) {
     return switch (event) {
       EventType.exam => "Examination",
-      EventType.course => "Class Sesssion",
+      EventType.course => "Class Session",
     };
   }
 
