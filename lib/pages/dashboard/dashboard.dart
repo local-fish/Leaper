@@ -160,22 +160,25 @@ class _DashboardState extends ConsumerState<Dashboard> {
                         ),
                       );
                     },
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          upcoming.courseName,
-                          style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.bold,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minWidth: double.infinity),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            upcoming.courseName,
+                            style: GoogleFonts.montserrat(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
 
-                        Text(upcoming.sessionName),
+                          Text(upcoming.sessionName),
 
-                        Text(
-                          "${DateFormat('dd MMM yyyy • HH:mm').format(upcoming.startTime!)} - ${DateFormat('dd MMM yyyy • HH:mm').format(upcoming.endTime!)}",
-                        ),
-                      ],
+                          Text(
+                            "${DateFormat('dd MMM yyyy • HH:mm').format(upcoming.startTime!)} - ${DateFormat('dd MMM yyyy • HH:mm').format(upcoming.endTime!)}",
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
