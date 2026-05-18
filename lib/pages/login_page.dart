@@ -54,7 +54,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     if (response.statusCode == 200) {
       final out = jsonDecode(response.body);
-      print(response.body);
       return UserInfo.fromJson(out);
     } else {
       throw Exception('Failed to fetch user info');
