@@ -85,14 +85,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       height: 200,
                     ),
                     SizedBox(height: 12),
-                    Text(
-                      "Login",
-                      style: TextStyle(
-                        fontSize: FontSizes.veryLarge,
-                        color: Color(0xFF787880),
-                      ),
-                    ),
-                    Padding(padding: EdgeInsets.only(top: 12)),
                     Container(
                       decoration: BoxDecoration(
                         color: Color(0xFFFFFFFF),
