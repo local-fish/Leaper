@@ -53,10 +53,16 @@ class _CourseState extends ConsumerState<Course> {
                     return Center(child: Text('Something went wrong'));
                   }
                   final course = snapshot.data!;
-                  return Padding(
-                    padding: EdgeInsets.all(8),
-                    child: CourseListItem(items: course),
-                  );
+                  if (course.isEmpty) {
+                    return Center(
+                      child: Text("You have no courses you are enrolled in!"),
+                    );
+                  } else {
+                    return Padding(
+                      padding: EdgeInsets.all(8),
+                      child: CourseListItem(items: course),
+                    );
+                  }
                 },
               ),
             ),
