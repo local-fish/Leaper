@@ -48,8 +48,16 @@ class Grades extends ConsumerWidget {
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Something went wrong'));
                   }
-                  final grades = snapshot.data!;
-                  return GradeListItem(items: grades);
+                  final grades = snapshot.data!
+                      .where((g) => g.components.isNotEmpty)
+                      .toList();
+                  if (grades.isEmpty) {
+                    return Center(
+                      child: Text("You have no courses with grades!"),
+                    );
+                  } else {
+                    return GradeListItem(items: grades);
+                  }
                 },
               ),
             ),
