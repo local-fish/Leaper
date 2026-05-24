@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
@@ -13,6 +12,7 @@ import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/schedule_data.dart';
 import 'package:leaper/pages/courses/course_detail.dart';
+import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -27,7 +27,6 @@ class _ScheduleState extends ConsumerState<Schedule> {
   final Map<DateTime, EventType> _events = {};
   final Map<DateTime, List<DayComponent>> _scheduleByDay = {};
   final Set<String> _loadedMonths = {};
-  bool _loading = false;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   @override
@@ -37,7 +36,6 @@ class _ScheduleState extends ConsumerState<Schedule> {
   }
 
   Future<void> loadSchedule(DateTime focusedDay) async {
-    setState(() => _loading = true);
     final key = '${focusedDay.year}-${focusedDay.month}';
 
     if (_loadedMonths.contains(key)) return;
@@ -68,7 +66,6 @@ class _ScheduleState extends ConsumerState<Schedule> {
     } catch (e) {
       debugPrint(e.toString());
     } finally {
-      setState(() => _loading = false);
       _loadedMonths.add(key);
     }
   }
@@ -78,7 +75,7 @@ class _ScheduleState extends ConsumerState<Schedule> {
     final end = DateTime(focusedDay.year, focusedDay.month + 1, 0, 23, 59, 59);
     final response = await http.get(
       Uri.parse(
-        '${dotenv.env['API_URL']}/schedule/${start.toIso8601String()}/${end.toIso8601String()}',
+        '${ref.read(apiProvider).value}/schedule/${start.toIso8601String()}/${end.toIso8601String()}',
       ),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:leaper/core/components/back_nav_heading.dart';
@@ -13,6 +12,7 @@ import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/forum_data.dart';
 import 'package:leaper/pages/forum/forum_new_post.dart';
 import 'package:leaper/pages/forum/forum_post.dart';
+import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
 import 'package:leaper/providers/user_info_provider.dart';
 
@@ -40,7 +40,9 @@ class _ForumState extends ConsumerState<Forum> {
 
   Future<List<ForumData>> fetchForumList(WidgetRef ref, ForumArgs args) async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/course/${args.courseId}/forums'),
+      Uri.parse(
+        '${ref.read(apiProvider).value}/course/${args.courseId}/forums',
+      ),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
 
@@ -128,7 +130,7 @@ class ForumListCard extends ConsumerWidget {
   const ForumListCard({super.key, required this.item, required this.onReload});
   Future<ForumData> fetchForumPost(WidgetRef ref, int args) async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/forum/$args'),
+      Uri.parse('${ref.read(apiProvider).value}/forum/$args'),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
 
@@ -142,7 +144,7 @@ class ForumListCard extends ConsumerWidget {
 
   Future<void> deletePost(WidgetRef ref, int forumId) async {
     await http.delete(
-      Uri.parse('${dotenv.env['API_URL']}/forum/$forumId'),
+      Uri.parse('${ref.read(apiProvider).value}/forum/$forumId'),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
   }

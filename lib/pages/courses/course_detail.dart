@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +12,7 @@ import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/course_data.dart';
 import 'package:leaper/pages/forum/forum.dart';
+import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -46,7 +46,7 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
     CourseDetailArgs args,
   ) async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/course/${args.courseId}'),
+      Uri.parse('${ref.read(apiProvider).value}/course/${args.courseId}'),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
 
@@ -63,7 +63,9 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
     CourseDetailArgs args,
   ) async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/course/${args.courseId}/students'),
+      Uri.parse(
+        '${ref.read(apiProvider).value}/course/${args.courseId}/students',
+      ),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
 
@@ -80,7 +82,9 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
     CourseDetailArgs args,
   ) async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/course/${args.courseId}/sessions'),
+      Uri.parse(
+        '${ref.read(apiProvider).value}/course/${args.courseId}/sessions',
+      ),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
 
@@ -97,7 +101,7 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
     int args,
   ) async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/session/$args'),
+      Uri.parse('${ref.read(apiProvider).value}/session/$args'),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
 
@@ -528,7 +532,7 @@ class SessionMaterial extends ConsumerWidget {
     final client = http.Client();
     final request = http.Request(
       'GET',
-      Uri.parse('${dotenv.env['API_URL']}/file/$fileId'),
+      Uri.parse('${ref.read(apiProvider).value}/file/$fileId'),
     );
     request.headers['Authorization'] = 'Bearer ${ref.read(authProvider).value}';
     request.followRedirects = false;

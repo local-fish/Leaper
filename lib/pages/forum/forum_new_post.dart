@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:leaper/core/components/back_nav_heading.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
+import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -64,7 +64,7 @@ class _ForumNewPostState extends ConsumerState<ForumNewPost> {
     setState(() => _isLoading = true);
     try {
       final response = await http.post(
-        Uri.parse('${dotenv.env['API_URL']}/forum/new'),
+        Uri.parse('${ref.read(apiProvider).value}/forum/new'),
         headers: {
           'Authorization': 'Bearer ${ref.read(authProvider).value}',
           'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ class _ForumNewPostState extends ConsumerState<ForumNewPost> {
     setState(() => _isLoading = true);
     try {
       final response = await http.patch(
-        Uri.parse('${dotenv.env['API_URL']}/forum/edit'),
+        Uri.parse('${ref.read(apiProvider).value}/forum/edit'),
         headers: {
           'Authorization': 'Bearer ${ref.read(authProvider).value}',
           'Content-Type': 'application/json',

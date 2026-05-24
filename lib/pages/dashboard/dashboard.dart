@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,6 +9,7 @@ import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/schedule_data.dart';
 import 'package:leaper/pages/courses/course_detail.dart';
+import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
 import 'package:leaper/providers/user_info_provider.dart';
 
@@ -30,7 +30,7 @@ class _DashboardState extends ConsumerState<Dashboard> {
 
   Future<DayComponent?> fetchUpcoming() async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/schedule/upcoming'),
+      Uri.parse('${ref.read(apiProvider).value}/schedule/upcoming'),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
 

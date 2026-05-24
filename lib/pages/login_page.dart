@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/core/styles/text_styles/input_styles.dart';
+import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
 import 'package:leaper/providers/user_info_provider.dart';
 
@@ -20,11 +20,19 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginPageState extends ConsumerState<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _urlController = TextEditingController();
   Future<void> handleLogin() async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+    if (_urlController.text.trim().isEmpty) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text("Please enter an API URL!")),
+      );
+      return;
+    }
     final navigator = Navigator.of(context);
+    final endpoint = _urlController.text.trim();
     final response = await http.post(
-      Uri.parse('${dotenv.env['API_URL']}/login'),
+      Uri.parse('$endpoint/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'username': _usernameController.text,
@@ -34,9 +42,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     if (response.statusCode == 200) {
       final token = jsonDecode(response.body)['token'];
-      final UserInfo info = await getUserInfo(token);
+      final UserInfo info = await getUserInfo(token, endpoint);
       ref.read(userInfoProvider.notifier).login(info);
       ref.read(authProvider.notifier).login(token);
+      ref.read(apiProvider.notifier).login(endpoint);
       scaffoldMessenger.clearSnackBars();
       navigator.pushReplacementNamed('/');
     } else {
@@ -46,9 +55,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     }
   }
 
-  Future<UserInfo> getUserInfo(String token) async {
+  Future<UserInfo> getUserInfo(String token, String endpoint) async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/user/info'),
+      Uri.parse('$endpoint/user/info'),
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -64,6 +73,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
+    _urlController.dispose();
     super.dispose();
   }
 
@@ -130,6 +140,29 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                         style: InputStyle.inputText,
                         obscureText: true,
+                      ),
+                    ),
+                  ),
+                  Padding(padding: EdgeInsets.only(top: 8)),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFFFFFFFF),
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(color: Color(0x0D000000), blurRadius: 24),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 12, right: 12),
+                      child: TextFormField(
+                        controller: _urlController,
+                        decoration: InputDecoration(
+                          icon: Icon(Icons.link),
+                          hintText: "API URL",
+                          border: InputBorder.none,
+                          hintStyle: InputStyle.hintText,
+                        ),
+                        style: InputStyle.inputText,
                       ),
                     ),
                   ),

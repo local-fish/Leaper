@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:leaper/core/routes.dart';
 import 'package:leaper/pages/login_page.dart';
+import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
 import 'package:leaper/providers/user_info_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
   runApp(ProviderScope(child: MyApp()));
 }
 
@@ -57,7 +56,7 @@ class AuthCheck extends ConsumerWidget {
         final ctx = context;
         http
             .get(
-              Uri.parse('${dotenv.env['API_URL']}/health'),
+              Uri.parse('${ref.read(apiProvider).value}/health'),
               headers: {'Authorization': 'Bearer $token'},
             )
             .then((response) {

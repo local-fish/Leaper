@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:leaper/core/components/heading_card.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
+import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
 import 'package:leaper/providers/user_info_provider.dart';
 
@@ -37,16 +38,25 @@ class Profile extends ConsumerWidget {
                   },
                   children: <TableRow>[
                     TableRow(
-                      children: [Text("Name"), Text(": ${userInfo?.name}")],
+                      children: [Text("Name"), Text(" : ${userInfo?.name}")],
                     ),
                     TableRow(
-                      children: [Text("UserId"), Text(": ${userInfo?.userId}")],
+                      children: [
+                        Text("UserId"),
+                        Text(" : ${userInfo?.userId}"),
+                      ],
                     ),
                     TableRow(
-                      children: [Text("Email"), Text(": ${userInfo?.email}")],
+                      children: [Text("Email"), Text(" : ${userInfo?.email}")],
                     ),
                     TableRow(
-                      children: [Text("Role"), Text(": ${userInfo?.role}")],
+                      children: [Text("Role"), Text(" : ${userInfo?.role}")],
+                    ),
+                    TableRow(
+                      children: [
+                        Text("Connected to"),
+                        Text(" : ${ref.read(apiProvider).value}"),
+                      ],
                     ),
                   ],
                 ),

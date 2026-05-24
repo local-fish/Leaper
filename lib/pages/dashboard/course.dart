@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -11,6 +10,7 @@ import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/course_data.dart';
 import 'package:leaper/pages/courses/course_detail.dart';
+import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
 
 class Course extends ConsumerStatefulWidget {
@@ -23,7 +23,7 @@ class Course extends ConsumerStatefulWidget {
 class _CourseState extends ConsumerState<Course> {
   Future<List<CourseData>> fetchCourses(WidgetRef ref) async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/courses'),
+      Uri.parse('${ref.read(apiProvider).value}/courses'),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
 

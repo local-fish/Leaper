@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:leaper/core/components/back_nav_heading.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/forum_data.dart';
+import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
 import 'package:leaper/providers/user_info_provider.dart';
 
@@ -80,7 +80,7 @@ class _ForumPostState extends ConsumerState<ForumPost> {
     if (body.isEmpty) return;
 
     final response = await http.patch(
-      Uri.parse('${dotenv.env['API_URL']}/forum/comment/edit'),
+      Uri.parse('${ref.read(apiProvider).value}/forum/comment/edit'),
       headers: {
         'Authorization': 'Bearer ${ref.read(authProvider).value}',
         'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ class _ForumPostState extends ConsumerState<ForumPost> {
     if (body.isEmpty) return;
 
     final response = await http.post(
-      Uri.parse('${dotenv.env['API_URL']}/forum/comment/new'),
+      Uri.parse('${ref.read(apiProvider).value}/forum/comment/new'),
       headers: {
         'Authorization': 'Bearer ${ref.read(authProvider).value}',
         'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ class _ForumPostState extends ConsumerState<ForumPost> {
 
   Future<ForumData> fetchForumPost(WidgetRef ref, ForumPostArgs args) async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/forum/${args.forumId}'),
+      Uri.parse('${ref.read(apiProvider).value}/forum/${args.forumId}'),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
 
@@ -142,7 +142,9 @@ class _ForumPostState extends ConsumerState<ForumPost> {
     ForumPostArgs args,
   ) async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/forum/${args.forumId}/comments'),
+      Uri.parse(
+        '${ref.read(apiProvider).value}/forum/${args.forumId}/comments',
+      ),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
 
@@ -379,7 +381,7 @@ class _CommentWidgetState extends ConsumerState<CommentWidget> {
   ) async {
     final response = await http.get(
       Uri.parse(
-        '${dotenv.env['API_URL']}/forum/$rootId/comments?replyId=$parentId',
+        '${ref.read(apiProvider).value}/forum/$rootId/comments?replyId=$parentId',
       ),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
@@ -394,7 +396,7 @@ class _CommentWidgetState extends ConsumerState<CommentWidget> {
 
   Future<void> deleteComment(WidgetRef ref, int commentId) async {
     await http.delete(
-      Uri.parse('${dotenv.env['API_URL']}/forum/comment/$commentId'),
+      Uri.parse('${ref.read(apiProvider).value}/forum/comment/$commentId'),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
   }
