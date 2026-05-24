@@ -40,11 +40,4 @@ Current Features:
 
 1. Clone the repository
 2. Run `flutter pub get` to install dependencies
-3. Create a `.env` file in the root of the project, or copy `.env.dev` if you're running on local machine , or `.env.prod` if you're running using the deployed version
-4. Run `flutter run` to start the app
-
-## Environment
-
-| Variable | Description |
-|----------|-------------|
-| `API_URL` | URL of the Leaper API |
+3. Run `flutter run` to start the app
