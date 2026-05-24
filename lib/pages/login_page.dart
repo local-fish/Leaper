@@ -21,6 +21,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _urlController = TextEditingController();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final url = ref.read(apiProvider).value ?? '';
+    if (url.isNotEmpty) {
+      _urlController.text = url;
+    }
+  }
+
   Future<void> handleLogin() async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     if (_urlController.text.trim().isEmpty) {
