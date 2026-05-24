@@ -70,86 +70,87 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return ScaffoldBackground(
-      child: Center(
-        child: Column(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(left: 32, right: 32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Image.asset(
-                      'assets/images/icon.png',
-                      width: 200,
-                      height: 200,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height,
+        ),
+        child: SingleChildScrollView(
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.only(left: 32, right: 32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/images/icon.png',
+                    width: 200,
+                    height: 200,
+                  ),
+                  SizedBox(height: 12),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFFFFFFFF),
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(color: Color(0x0D000000), blurRadius: 24),
+                      ],
                     ),
-                    SizedBox(height: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xFFFFFFFF),
-                        borderRadius: BorderRadius.circular(32),
-                        boxShadow: [
-                          BoxShadow(color: Color(0x0D000000), blurRadius: 24),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 12, right: 12),
-                        child: TextFormField(
-                          controller: _usernameController,
-                          decoration: InputDecoration(
-                            icon: Icon(Icons.person),
-                            hintText: "Username or Email",
-                            border: InputBorder.none,
-                            hintStyle: InputStyle.hintText,
-                          ),
-                          style: InputStyle.inputText,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 12, right: 12),
+                      child: TextFormField(
+                        controller: _usernameController,
+                        decoration: InputDecoration(
+                          icon: Icon(Icons.person),
+                          hintText: "Username or Email",
+                          border: InputBorder.none,
+                          hintStyle: InputStyle.hintText,
                         ),
+                        style: InputStyle.inputText,
                       ),
                     ),
-                    Padding(padding: EdgeInsets.only(top: 8)),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xFFFFFFFF),
-                        borderRadius: BorderRadius.circular(32),
-                        boxShadow: [
-                          BoxShadow(color: Color(0x0D000000), blurRadius: 24),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 12, right: 12),
-                        child: TextFormField(
-                          controller: _passwordController,
-                          decoration: InputDecoration(
-                            icon: Icon(Icons.lock),
-                            hintText: "Password",
-                            border: InputBorder.none,
-                            hintStyle: InputStyle.hintText,
-                          ),
-                          style: InputStyle.inputText,
-                          obscureText: true,
+                  ),
+                  Padding(padding: EdgeInsets.only(top: 8)),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFFFFFFFF),
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(color: Color(0x0D000000), blurRadius: 24),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 12, right: 12),
+                      child: TextFormField(
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                          icon: Icon(Icons.lock),
+                          hintText: "Password",
+                          border: InputBorder.none,
+                          hintStyle: InputStyle.hintText,
                         ),
+                        style: InputStyle.inputText,
+                        obscureText: true,
                       ),
                     ),
-                    Padding(padding: EdgeInsets.only(top: 8)),
-                    ElevatedButton(
-                      onPressed: handleLogin,
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 96,
-                          vertical: 8,
-                        ),
-                      ),
-                      child: Text(
-                        "Login",
-                        style: TextStyle(fontSize: FontSizes.medium),
+                  ),
+                  Padding(padding: EdgeInsets.only(top: 8)),
+                  ElevatedButton(
+                    onPressed: handleLogin,
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 96,
+                        vertical: 8,
                       ),
                     ),
-                  ],
-                ),
+                    child: Text(
+                      "Login",
+                      style: TextStyle(fontSize: FontSizes.medium),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
