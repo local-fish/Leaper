@@ -10,7 +10,7 @@ class ApiNotifier extends AsyncNotifier<String?> {
   @override
   Future<String?> build() async {
     _perfs = await SharedPreferences.getInstance();
-    return _perfs.getString('user');
+    return _perfs.getString('endpoint');
   }
 
   Future<void> login(String item) async {
