@@ -33,34 +33,39 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   Future<void> handleLogin() async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    if (_urlController.text.trim().isEmpty) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Please enter an API URL!")),
+    try {
+      if (_urlController.text.trim().isEmpty) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text("Please enter an API URL!")),
+        );
+        return;
+      }
+      final navigator = Navigator.of(context);
+      final endpoint = _urlController.text.trim();
+      final response = await http.post(
+        Uri.parse('$endpoint/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': _usernameController.text,
+          'password': _passwordController.text,
+        }),
       );
-      return;
-    }
-    final navigator = Navigator.of(context);
-    final endpoint = _urlController.text.trim();
-    final response = await http.post(
-      Uri.parse('$endpoint/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': _usernameController.text,
-        'password': _passwordController.text,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      final token = jsonDecode(response.body)['token'];
-      final UserInfo info = await getUserInfo(token, endpoint);
-      ref.read(userInfoProvider.notifier).login(info);
-      ref.read(authProvider.notifier).login(token);
-      ref.read(apiProvider.notifier).login(endpoint);
-      scaffoldMessenger.clearSnackBars();
-      navigator.pushReplacementNamed('/');
-    } else {
+      if (response.statusCode == 200) {
+        final token = jsonDecode(response.body)['token'];
+        final UserInfo info = await getUserInfo(token, endpoint);
+        ref.read(userInfoProvider.notifier).login(info);
+        ref.read(authProvider.notifier).login(token);
+        ref.read(apiProvider.notifier).login(endpoint);
+        scaffoldMessenger.clearSnackBars();
+        navigator.pushReplacementNamed('/');
+      } else {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text("Invalid username or password!")),
+        );
+      }
+    } catch (e) {
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Invalid username or password!")),
+        SnackBar(content: Text("Something went wrong! (Check your API Url!)")),
       );
     }
   }

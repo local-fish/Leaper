@@ -36,49 +36,46 @@ class MyApp extends StatelessWidget {
 
 class AuthCheck extends ConsumerWidget {
   const AuthCheck({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
-    return authState.when(
-      loading: () =>
-          const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, st) => LoginPage(),
-      data: (token) {
-        if (token == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.pushReplacementNamed(context, '/login');
-          });
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        final ctx = context;
-        final apiUrl = ref.read(apiProvider).value;
-        if (apiUrl == null || apiUrl.isEmpty) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.pushReplacementNamed(context, '/login');
-          });
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        http
-            .get(
-              Uri.parse('$apiUrl/health'),
-              headers: {'Authorization': 'Bearer $token'},
-            )
-            .then((response) {
-              if (response.statusCode == 401) {
-                ref.read(authProvider.notifier).logout();
-                ref.read(userInfoProvider.notifier).logout();
-              } else {
-                if (!ctx.mounted) return;
-                Navigator.pushReplacementNamed(context, '/main');
-              }
-            });
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
-      },
-    );
+    final apiState = ref.watch(apiProvider);
+
+    if (authState.isLoading || apiState.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final token = authState.value;
+    final apiUrl = apiState.value;
+
+    if (token == null || apiUrl == null || apiUrl.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/login');
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    http
+        .get(
+          Uri.parse('$apiUrl/health'),
+          headers: {'Authorization': 'Bearer $token'},
+        )
+        .then((response) {
+          if (!context.mounted) return;
+          if (response.statusCode == 401) {
+            ref.read(authProvider.notifier).logout();
+            ref.read(userInfoProvider.notifier).logout();
+          } else {
+            Navigator.pushReplacementNamed(context, '/main');
+          }
+        })
+        .catchError((_) {
+          if (!context.mounted) return;
+          ref.read(authProvider.notifier).logout();
+          ref.read(userInfoProvider.notifier).logout();
+          Navigator.pushReplacementNamed(context, '/login');
+        });
+
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
