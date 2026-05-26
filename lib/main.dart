@@ -56,7 +56,9 @@ class AuthCheck extends ConsumerWidget {
         final ctx = context;
         final apiUrl = ref.read(apiProvider).value;
         if (apiUrl == null || apiUrl.isEmpty) {
-          Navigator.pushReplacementNamed(context, '/login');
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.pushReplacementNamed(context, '/login');
+          });
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
