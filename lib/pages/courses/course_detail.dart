@@ -495,6 +495,7 @@ class _SessionState extends ConsumerState<Session> {
             ],
           ),
         ),
+        Divider(),
         FutureBuilder(
           future: future,
           builder: (context, snapshot) {
@@ -520,6 +521,7 @@ class _SessionState extends ConsumerState<Session> {
             );
           },
         ),
+        Divider(),
       ],
     );
   }
