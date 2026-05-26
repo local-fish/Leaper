@@ -54,9 +54,16 @@ class AuthCheck extends ConsumerWidget {
           );
         }
         final ctx = context;
+        final apiUrl = ref.read(apiProvider).value;
+        if (apiUrl == null || apiUrl.isEmpty) {
+          Navigator.pushReplacementNamed(context, '/login');
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
         http
             .get(
-              Uri.parse('${ref.read(apiProvider).value}/health'),
+              Uri.parse('$apiUrl/health'),
               headers: {'Authorization': 'Bearer $token'},
             )
             .then((response) {
