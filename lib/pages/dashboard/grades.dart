@@ -13,9 +13,20 @@ import 'package:leaper/pages/courses/course_detail.dart';
 import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
 
-class Grades extends ConsumerWidget {
-  // TODO: Add Search Bar
+class Grades extends ConsumerStatefulWidget {
   const Grades({super.key});
+  @override
+  ConsumerState<Grades> createState() => _GradesState();
+}
+
+class _GradesState extends ConsumerState<Grades> {
+  String _query = "";
+  Future<List<GradeData>>? gradesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Future<List<GradeData>> fetchGrades(WidgetRef ref) async {
     final response = await http.get(
@@ -33,12 +44,28 @@ class Grades extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return ScaffoldBackground(
       child: Center(
         child: Column(
           children: [
             BackNavHeading(heading: "Grades"),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: TextField(
+                onChanged: (value) => setState(() => _query = value),
+                decoration: InputDecoration(
+                  hintText: "Search courses...",
+                  prefixIcon: Icon(Icons.search),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(32),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+            ),
             Expanded(
               child: FutureBuilder<List<GradeData>>(
                 future: fetchGrades(ref),
@@ -50,13 +77,22 @@ class Grades extends ConsumerWidget {
                   }
                   final grades = snapshot.data!
                       .where((g) => g.components.isNotEmpty)
+                      .where(
+                        (g) => g.courseName.toLowerCase().contains(
+                          _query.toLowerCase(),
+                        ),
+                      )
+                      .toList()
                       .toList();
                   if (grades.isEmpty) {
                     return Center(
                       child: Text("You have no courses with grades!"),
                     );
                   } else {
-                    return GradeListItem(items: grades);
+                    return Padding(
+                      padding: EdgeInsets.all(8),
+                      child: GradeListItem(items: grades),
+                    );
                   }
                 },
               ),

@@ -29,6 +29,7 @@ class Forum extends ConsumerStatefulWidget {
 
 class _ForumState extends ConsumerState<Forum> {
   Future<List<ForumData>>? forumData;
+  String _query = "";
   ForumArgs? _args;
 
   @override
@@ -65,6 +66,23 @@ class _ForumState extends ConsumerState<Forum> {
       child: Column(
         children: [
           BackNavHeading(heading: "Forums"),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: TextField(
+              onChanged: (value) => setState(() => _query = value),
+              decoration: InputDecoration(
+                hintText: "Search forums...",
+                prefixIcon: Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(32),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 12),
           FutureBuilder(
             future: forumData,
             builder: (context, snapshot) {
@@ -81,7 +99,12 @@ class _ForumState extends ConsumerState<Forum> {
                   ],
                 );
               }
-              final data = snapshot.data!;
+              var data = snapshot.data!;
+              data = data
+                  .where(
+                    (f) => f.title.toLowerCase().contains(_query.toLowerCase()),
+                  )
+                  .toList();
               data.sort((a, b) => b.time.compareTo(a.time));
               return Expanded(
                 child: RefreshIndicator(
