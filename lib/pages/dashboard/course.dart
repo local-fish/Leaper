@@ -80,12 +80,11 @@ class _CourseState extends ConsumerState<Course> {
                   final course = snapshot.data!;
                   var filtered = course
                       .where(
-                        (c) => c.name.toLowerCase().contains(
-                          _query!.toLowerCase(),
-                        ),
+                        (c) =>
+                            c.name.toLowerCase().contains(_query.toLowerCase()),
                       )
                       .toList();
-                  if (_query!.isEmpty) filtered = course;
+                  if (_query.isEmpty) filtered = course;
                   if (course.isEmpty) {
                     return Center(
                       child: Text("You have no courses you are enrolled in!"),
