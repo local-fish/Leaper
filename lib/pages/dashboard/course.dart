@@ -68,6 +68,7 @@ class _CourseState extends ConsumerState<Course> {
                 ),
               ),
             ),
+            SizedBox(height: 4),
             Expanded(
               child: FutureBuilder<List<CourseData>>(
                 future: coursesFuture,
