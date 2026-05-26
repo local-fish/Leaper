@@ -21,6 +21,15 @@ class Course extends ConsumerStatefulWidget {
 }
 
 class _CourseState extends ConsumerState<Course> {
+  String _query = "";
+  Future<List<CourseData>>? coursesFuture;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    coursesFuture ??= fetchCourses(ref);
+  }
+
   Future<List<CourseData>> fetchCourses(WidgetRef ref) async {
     final response = await http.get(
       Uri.parse('${ref.read(apiProvider).value}/courses'),
@@ -43,9 +52,25 @@ class _CourseState extends ConsumerState<Course> {
         child: Column(
           children: [
             BackNavHeading(heading: "Courses"),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: TextField(
+                onChanged: (value) => setState(() => _query = value),
+                decoration: InputDecoration(
+                  hintText: "Search courses...",
+                  prefixIcon: Icon(Icons.search),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(32),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+            ),
             Expanded(
               child: FutureBuilder<List<CourseData>>(
-                future: fetchCourses(ref),
+                future: coursesFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
@@ -53,6 +78,14 @@ class _CourseState extends ConsumerState<Course> {
                     return Center(child: Text('Something went wrong'));
                   }
                   final course = snapshot.data!;
+                  var filtered = course
+                      .where(
+                        (c) => c.name.toLowerCase().contains(
+                          _query!.toLowerCase(),
+                        ),
+                      )
+                      .toList();
+                  if (_query!.isEmpty) filtered = course;
                   if (course.isEmpty) {
                     return Center(
                       child: Text("You have no courses you are enrolled in!"),
@@ -60,7 +93,7 @@ class _CourseState extends ConsumerState<Course> {
                   } else {
                     return Padding(
                       padding: EdgeInsets.all(8),
-                      child: CourseListItem(items: course),
+                      child: CourseListItem(items: filtered),
                     );
                   }
                 },
