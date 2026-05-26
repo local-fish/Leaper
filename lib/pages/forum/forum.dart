@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:leaper/core/components/back_nav_heading.dart';
 import 'package:leaper/core/components/heading_card.dart';
+import 'package:leaper/core/components/info_grid.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/forum_data.dart';
@@ -241,24 +242,21 @@ class ForumListCard extends ConsumerWidget {
             ),
           ),
         ),
-        content: ConstrainedBox(
-          constraints: BoxConstraints(minWidth: double.infinity),
-          child: Table(
-            columnWidths: const <int, TableColumnWidth>{
-              0: IntrinsicColumnWidth(),
-              1: FlexColumnWidth(),
-            },
-            children: <TableRow>[
-              TableRow(
-                children: [
-                  Text("Posted on "),
-                  Text(
-                    ": ${DateFormat('dd MMM yyyy • HH:mm:ss').format(item.time)}",
+        content: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8),
+          child: Column(
+            children: [
+              InfoGrid(
+                fields: [InfoField(label: "Posted by", value: item.user.name)],
+              ),
+              SizedBox(height: 8),
+              InfoGrid(
+                fields: [
+                  InfoField(
+                    label: "Posted on",
+                    value: DateFormat('dd MMM yyyy HH:mm:ss').format(item.time),
                   ),
                 ],
-              ),
-              TableRow(
-                children: [Text("Posted by"), Text(": ${item.user.name}")],
               ),
             ],
           ),

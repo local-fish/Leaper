@@ -18,9 +18,18 @@ class HeadingCard extends StatelessWidget {
           // dark header
           Container(
             width: double.infinity,
-            color: Color(0xFF919ABB),
-            padding: EdgeInsets.all(4),
-            child: heading,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF7A84B0), Color(0xFF919ABB)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+            ),
+            padding: EdgeInsets.all(8),
+            child: DefaultTextStyle(
+              style: TextStyle(color: Colors.white),
+              child: heading,
+            ),
           ),
           // white body
           Padding(padding: EdgeInsets.all(12), child: content),

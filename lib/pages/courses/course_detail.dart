@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:leaper/core/components/back_nav_heading.dart';
 import 'package:leaper/core/components/custom_icon_button.dart';
 import 'package:leaper/core/components/heading_card.dart';
+import 'package:leaper/core/components/info_grid.dart';
+import 'package:leaper/core/components/info_row.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/course_data.dart';
@@ -187,38 +189,34 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                               ),
                             ),
                           ),
-                          content: Table(
-                            columnWidths: const <int, TableColumnWidth>{
-                              0: IntrinsicColumnWidth(),
-                              1: FlexColumnWidth(),
-                            },
-                            children: <TableRow>[
-                              TableRow(
-                                children: [
-                                  Text("Course"),
-                                  Text(": ${course.name}"),
-                                ],
-                              ),
-                              TableRow(
-                                children: [
-                                  Text(
-                                    "Lecturer${course.lecturers!.length > 1 ? 's' : ''}",
-                                  ),
-                                  Text(
-                                    ": ${course.lecturers!.map((l) => l.name).join(', ')}",
+                          content: Column(
+                            children: [
+                              InfoGrid(
+                                fields: [
+                                  InfoField(
+                                    label: "Course",
+                                    value: course.name,
                                   ),
                                 ],
                               ),
-                              TableRow(
-                                children: [
-                                  Text("Students"),
-                                  Text(": ${course.studentCount.toString()}"),
-                                ],
-                              ),
-                              TableRow(
-                                children: [
-                                  Text("Sessions"),
-                                  Text(": ${course.sessionCount.toString()}"),
+                              SizedBox(height: 8),
+                              InfoGrid(
+                                fields: [
+                                  InfoField(
+                                    label:
+                                        "Lecturer${course.lecturers!.length > 1 ? 's' : ''}",
+                                    value: course.lecturers!
+                                        .map((l) => l.name)
+                                        .join(', '),
+                                  ),
+                                  InfoField(
+                                    label: "Students",
+                                    value: course.studentCount.toString(),
+                                  ),
+                                  InfoField(
+                                    label: "Sessions",
+                                    value: course.sessionCount.toString(),
+                                  ),
                                 ],
                               ),
                             ],
@@ -467,32 +465,35 @@ class _SessionState extends ConsumerState<Session> {
       children: [
         Padding(
           padding: EdgeInsets.only(left: 8, right: 8),
-          child: Table(
-            columnWidths: const <int, TableColumnWidth>{
-              0: IntrinsicColumnWidth(),
-              1: FlexColumnWidth(),
-            },
-            children: <TableRow>[
-              TableRow(
-                children: [
-                  Text("Start "),
-                  Text(
-                    ": ${DateFormat('dd MMM yyyy • HH:mm').format(data.startTime)}",
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: double.infinity),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InfoRow(
+                  field: InfoField(
+                    label: "Start",
+                    value: DateFormat(
+                      'dd MMM yyyy • HH:mm',
+                    ).format(data.startTime),
                   ),
-                ],
-              ),
-              TableRow(
-                children: [
-                  Text("End "),
-                  Text(
-                    ": ${DateFormat('dd MMM yyyy • HH:mm').format(data.endTime)}",
+                ),
+                InfoRow(
+                  field: InfoField(
+                    label: "End",
+                    value: DateFormat(
+                      'dd MMM yyyy • HH:mm',
+                    ).format(data.endTime),
                   ),
-                ],
-              ),
-              TableRow(
-                children: [Text("Location "), Text(": ${data.location}")],
-              ),
-            ],
+                ),
+                InfoRow(
+                  field: InfoField(
+                    label: "Location",
+                    value: data.location ?? '',
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         Divider(),
@@ -515,13 +516,13 @@ class _SessionState extends ConsumerState<Session> {
                   children: [
                     if (data.files!.isNotEmpty) Text("Materials: "),
                     ...?data.files?.map((x) => SessionMaterial(data: x)),
+                    if (data.files!.isNotEmpty) Divider(),
                   ],
                 ),
               ),
             );
           },
         ),
-        Divider(),
       ],
     );
   }

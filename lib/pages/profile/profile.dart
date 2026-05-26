@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:leaper/core/components/heading_card.dart';
+import 'package:leaper/core/components/info_grid.dart';
+import 'package:leaper/core/components/info_row.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/providers/api_provider.dart';
@@ -31,34 +33,43 @@ class Profile extends ConsumerWidget {
                     ),
                   ),
                 ),
-                content: Table(
-                  columnWidths: <int, TableColumnWidth>{
-                    0: IntrinsicColumnWidth(),
-                    1: FlexColumnWidth(),
-                  },
-                  children: <TableRow>[
-                    TableRow(
-                      children: [Text("Name"), Text(" : ${userInfo?.name}")],
-                    ),
-                    TableRow(
-                      children: [
-                        Text("UserId"),
-                        Text(" : ${userInfo?.userId}"),
-                      ],
-                    ),
-                    TableRow(
-                      children: [Text("Email"), Text(" : ${userInfo?.email}")],
-                    ),
-                    TableRow(
-                      children: [Text("Role"), Text(" : ${userInfo?.role}")],
-                    ),
-                    TableRow(
-                      children: [
-                        Text("Connected to"),
-                        Text(" : ${ref.read(apiProvider).value}"),
-                      ],
-                    ),
-                  ],
+                content: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: double.infinity),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      InfoRow(
+                        field: InfoField(
+                          label: "Name",
+                          value: userInfo?.name ?? '',
+                        ),
+                      ),
+                      InfoRow(
+                        field: InfoField(
+                          label: "User ID",
+                          value: userInfo?.userId.toString() ?? '',
+                        ),
+                      ),
+                      InfoRow(
+                        field: InfoField(
+                          label: "Email",
+                          value: userInfo?.email ?? '',
+                        ),
+                      ),
+                      InfoRow(
+                        field: InfoField(
+                          label: "Role",
+                          value: userInfo?.role ?? '',
+                        ),
+                      ),
+                      InfoRow(
+                        field: InfoField(
+                          label: "Connected to",
+                          value: ref.read(apiProvider).value ?? '',
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               SizedBox(height: 8),

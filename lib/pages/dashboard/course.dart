@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:leaper/core/components/back_nav_heading.dart';
 import 'package:leaper/core/components/heading_card.dart';
+import 'package:leaper/core/components/info_grid.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/course_data.dart';
@@ -136,34 +137,23 @@ class CourseListItem extends StatelessWidget {
               ),
             ),
             content: Padding(
-              padding: EdgeInsets.all(4),
-              child: Table(
-                columnWidths: <int, TableColumnWidth>{
-                  0: IntrinsicColumnWidth(),
-                  1: FlexColumnWidth(),
-                },
-                children: <TableRow>[
-                  TableRow(
-                    children: [
-                      Text(
+              padding: EdgeInsets.all(8),
+              child: InfoGrid(
+                fields: [
+                  InfoField(
+                    label:
                         "Lecturer${items[index].lecturers!.length > 1 ? 's' : ''}",
-                      ),
-                      Text(
-                        ": ${items[index].lecturers!.map((l) => l.name).join(', ')}",
-                      ),
-                    ],
+                    value: items[index].lecturers!
+                        .map((l) => l.name)
+                        .join(', '),
                   ),
-                  TableRow(
-                    children: [
-                      Text("Students"),
-                      Text(": ${items[index].studentCount.toString()}"),
-                    ],
+                  InfoField(
+                    label: "Students",
+                    value: items[index].studentCount.toString(),
                   ),
-                  TableRow(
-                    children: [
-                      Text("Sessions"),
-                      Text(": ${items[index].sessionCount.toString()}"),
-                    ],
+                  InfoField(
+                    label: "Sessions",
+                    value: items[index].sessionCount.toString(),
                   ),
                 ],
               ),
