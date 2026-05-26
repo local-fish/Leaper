@@ -104,6 +104,58 @@ class _GradesState extends ConsumerState<Grades> {
   }
 }
 
+class GradeRow extends StatelessWidget {
+  final GradeComponent component;
+  const GradeRow({super.key, required this.component});
+
+  Color _gradeColor(double grade) {
+    if (grade >= 80) return Color(0xFF4CAF50); // green
+    if (grade >= 60) return Color(0xFFFFC107); // yellow
+    return Color(0xFFF44336); // red
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final grade = component.grade;
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                component.component,
+                style: GoogleFonts.montserrat(
+                  fontSize: FontSizes.small,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                grade != null ? grade.toStringAsFixed(1) : "N/A",
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+          SizedBox(height: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: grade != null ? grade / 100 : 0,
+              backgroundColor: Color(0xFFE0E0E0),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                grade != null ? _gradeColor(grade) : Color(0xFFE0E0E0),
+              ),
+              minHeight: 6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class GradeListItem extends StatelessWidget {
   final List<GradeData> items;
   const GradeListItem({super.key, required this.items});
@@ -134,21 +186,9 @@ class GradeListItem extends StatelessWidget {
               ),
             ),
             content: Column(
-              children: items[index].components.map((component) {
-                return Padding(
-                  padding: EdgeInsets.only(left: 12, right: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(component.component),
-                      if (component.grade != null)
-                        Text(component.grade!.toStringAsFixed(1))
-                      else
-                        Text("N/A"),
-                    ],
-                  ),
-                );
-              }).toList(),
+              children: items[index].components
+                  .map((component) => GradeRow(component: component))
+                  .toList(),
             ),
           ),
         );
