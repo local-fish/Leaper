@@ -29,10 +29,22 @@ class _ScheduleState extends ConsumerState<Schedule> {
   final Set<String> _loadedMonths = {};
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  final _columnKey = GlobalKey();
+  double _sheetInitialSize = 0.1;
   @override
   void initState() {
     super.initState();
     loadSchedule(_focusedDay);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final box = _columnKey.currentContext?.findRenderObject() as RenderBox?;
+      final height = box?.size.height ?? 0;
+      final screenHeight = MediaQuery.of(context).size.height;
+      setState(() {
+        _sheetInitialSize = 1 - (height / screenHeight);
+        _sheetInitialSize = _sheetInitialSize > 0.1 ? _sheetInitialSize : 0.1;
+        _sheetInitialSize = _sheetInitialSize < 1 ? _sheetInitialSize : 0.3;
+      });
+    });
   }
 
   Future<void> loadSchedule(DateTime focusedDay) async {
@@ -99,91 +111,97 @@ class _ScheduleState extends ConsumerState<Schedule> {
         )] ??
         [];
     return ScaffoldBackground(
-      child: Center(
-        child: Column(
-          children: [
-            BackNavHeading(heading: "Schedule"),
-            Padding(
-              padding: EdgeInsets.all(16),
-              child: HeadingCard(
-                heading: Padding(
-                  padding: EdgeInsetsGeometry.only(left: 16),
-                  child: Text(
-                    DateFormat('MMMM yyyy').format(_focusedDay),
-                    style: GoogleFonts.montserrat(
-                      fontSize: FontSizes.medium,
-                      fontWeight: FontWeight.w600,
+      child: Stack(
+        children: [
+          Column(
+            key: _columnKey,
+            children: [
+              BackNavHeading(heading: "Schedule"),
+              Padding(
+                padding: EdgeInsets.all(16),
+                child: HeadingCard(
+                  heading: Padding(
+                    padding: EdgeInsetsGeometry.only(left: 16),
+                    child: Text(
+                      DateFormat('MMMM yyyy').format(_focusedDay),
+                      style: GoogleFonts.montserrat(
+                        fontSize: FontSizes.medium,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  content: TableCalendar(
+                    headerVisible: false,
+                    firstDay: DateTime.utc(2020, 1, 1),
+                    lastDay: DateTime.utc(2030, 1, 1),
+                    rowHeight: 40, // default is 52
+                    daysOfWeekHeight: 20, // default is 16
+                    focusedDay: _focusedDay,
+                    selectedDayPredicate: (day) {
+                      return isSameDay(activeDate, day);
+                    },
+                    onPageChanged: (focusedDay) async {
+                      setState(() => _focusedDay = focusedDay);
+                      await loadSchedule(focusedDay);
+                    },
+                    onDaySelected: (selectedDay, focusedDay) {
+                      if (!isSameDay(activeDate, selectedDay)) {
+                        setState(() {
+                          _selectedDay = selectedDay;
+                          _focusedDay = focusedDay;
+                        });
+                      }
+                    },
+                    calendarBuilders: CalendarBuilders(
+                      defaultBuilder: (context, day, focusedDay) {
+                        final normalizedDay = DateTime(
+                          day.year,
+                          day.month,
+                          day.day,
+                        );
+                        final EventType? events = _events[normalizedDay];
+                        return dayContainer(day, false, events);
+                      },
+                      selectedBuilder: (context, day, focusedDay) {
+                        final normalizedDay = DateTime(
+                          day.year,
+                          day.month,
+                          day.day,
+                        );
+                        final EventType? events = _events[normalizedDay];
+
+                        return dayContainer(day, true, events);
+                      },
+                      todayBuilder: (context, day, focusedDay) {
+                        final normalizedDay = DateTime(
+                          day.year,
+                          day.month,
+                          day.day,
+                        );
+                        final EventType? events = _events[normalizedDay];
+
+                        return dayContainer(day, false, events);
+                      },
                     ),
                   ),
                 ),
-                content: TableCalendar(
-                  headerVisible: false,
-                  firstDay: DateTime.utc(2020, 1, 1),
-                  lastDay: DateTime.utc(2030, 1, 1),
-                  rowHeight: 40, // default is 52
-                  daysOfWeekHeight: 20, // default is 16
-                  focusedDay: _focusedDay,
-                  selectedDayPredicate: (day) {
-                    return isSameDay(activeDate, day);
-                  },
-                  onPageChanged: (focusedDay) async {
-                    setState(() => _focusedDay = focusedDay);
-                    await loadSchedule(focusedDay);
-                  },
-                  onDaySelected: (selectedDay, focusedDay) {
-                    if (!isSameDay(activeDate, selectedDay)) {
-                      setState(() {
-                        _selectedDay = selectedDay;
-                        _focusedDay = focusedDay;
-                      });
-                    }
-                  },
-                  calendarBuilders: CalendarBuilders(
-                    defaultBuilder: (context, day, focusedDay) {
-                      final normalizedDay = DateTime(
-                        day.year,
-                        day.month,
-                        day.day,
-                      );
-                      final EventType? events = _events[normalizedDay];
-                      return dayContainer(day, false, events);
-                    },
-                    selectedBuilder: (context, day, focusedDay) {
-                      final normalizedDay = DateTime(
-                        day.year,
-                        day.month,
-                        day.day,
-                      );
-                      final EventType? events = _events[normalizedDay];
-
-                      return dayContainer(day, true, events);
-                    },
-                    todayBuilder: (context, day, focusedDay) {
-                      final normalizedDay = DateTime(
-                        day.year,
-                        day.month,
-                        day.day,
-                      );
-                      final EventType? events = _events[normalizedDay];
-
-                      return dayContainer(day, false, events);
-                    },
-                  ),
-                ),
               ),
-            ),
-            SizedBox(height: 8),
-            Expanded(
+              SizedBox(height: 8),
+            ],
+          ),
+          DraggableScrollableSheet(
+            initialChildSize: _sheetInitialSize, // how much it shows by default
+            builder: (context, scrollController) => Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(32),
                   topRight: Radius.circular(32),
                 ),
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: Color(0x335A5E75),
+                      color: Color(0x665A5E75),
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(32),
                         topRight: Radius.circular(32),
@@ -195,6 +213,7 @@ class _ScheduleState extends ConsumerState<Schedule> {
                       ),
                     ),
                     child: CustomScrollView(
+                      controller: scrollController,
                       slivers: [
                         SliverToBoxAdapter(
                           child: Padding(
@@ -251,8 +270,8 @@ class _ScheduleState extends ConsumerState<Schedule> {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
