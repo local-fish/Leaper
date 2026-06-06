@@ -7,7 +7,7 @@ class CourseData {
   int id;
   int studentCount;
   int sessionCount;
-  List<CoursePersonData>? lecturers;
+  List<CoursePersonHeader>? lecturers;
 
   CourseData({
     required this.id,
@@ -23,6 +23,16 @@ class CourseData {
   factory CourseData.fromJson(Map<String, dynamic> json) =>
       _$CourseDataFromJson(json);
   Map<String, dynamic> toJson() => _$CourseDataToJson(this);
+}
+
+@JsonSerializable()
+class CoursePersonHeader {
+  int id;
+  String name;
+  CoursePersonHeader({required this.id, required this.name});
+  factory CoursePersonHeader.fromJson(Map<String, dynamic> json) =>
+      _$CoursePersonHeaderFromJson(json);
+  Map<String, dynamic> toJson() => _$CoursePersonHeaderToJson(this);
 }
 
 @JsonSerializable()

@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,6 +18,7 @@ import 'package:leaper/models/course_data.dart';
 import 'package:leaper/pages/forum/forum.dart';
 import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
+import 'package:leaper/providers/user_info_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CourseDetailArgs {
@@ -31,7 +34,7 @@ class CourseDetail extends ConsumerStatefulWidget {
 }
 
 class _CourseDetailState extends ConsumerState<CourseDetail> {
-  Future<List<CoursePersonData>>? _studentsFuture;
+  Future<List<CoursePersonData>>? _participantFuture;
   Future<CourseData>? _courseDetailsFuture;
   Future<List<CourseSessionData>>? _courseSessionsFuture;
 
@@ -138,7 +141,6 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
               return Expanded(
                 child: Padding(
                   padding: EdgeInsets.all(8),
-                  // Todo: Scrollview
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
@@ -238,9 +240,9 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                             children: [
                               ExpansionTile(
                                 onExpansionChanged: (expanded) {
-                                  if (expanded && _studentsFuture == null) {
+                                  if (expanded && _participantFuture == null) {
                                     setState(() {
-                                      _studentsFuture = fetchCourseStudents(
+                                      _participantFuture = fetchCourseStudents(
                                         ref,
                                         args,
                                       );
@@ -261,7 +263,7 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                                 shape: Border(),
                                 children: [
                                   FutureBuilder(
-                                    future: _courseDetailsFuture,
+                                    future: _participantFuture,
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState ==
                                           ConnectionState.waiting) {
@@ -273,7 +275,10 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                                           child: Text("Something went wrong"),
                                         );
                                       }
-                                      final course = snapshot.data!;
+                                      final data = snapshot.data!;
+                                      final lecturers = data
+                                          .where((p) => p.role == 'Teacher')
+                                          .toList();
                                       return Padding(
                                         padding: EdgeInsets.only(
                                           left: 12,
@@ -284,7 +289,7 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                                           child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
-                                            children: course.lecturers!
+                                            children: lecturers
                                                 .expand(
                                                   (x) => {
                                                     Person(person: x),
@@ -301,9 +306,9 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                               ),
                               ExpansionTile(
                                 onExpansionChanged: (expanded) {
-                                  if (expanded && _studentsFuture == null) {
+                                  if (expanded && _participantFuture == null) {
                                     setState(() {
-                                      _studentsFuture = fetchCourseStudents(
+                                      _participantFuture = fetchCourseStudents(
                                         ref,
                                         args,
                                       );
@@ -324,7 +329,7 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                                 shape: Border(),
                                 children: [
                                   FutureBuilder(
-                                    future: _studentsFuture,
+                                    future: _participantFuture,
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState ==
                                           ConnectionState.waiting) {
@@ -337,6 +342,9 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                                         );
                                       }
                                       final people = snapshot.data!;
+                                      final students = people
+                                          .where((p) => p.role == 'Student')
+                                          .toList();
                                       return Padding(
                                         padding: EdgeInsets.only(
                                           left: 12,
@@ -347,7 +355,7 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                                           child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
-                                            children: people
+                                            children: students
                                                 .expand(
                                                   (x) => {
                                                     Person(person: x),
@@ -442,6 +450,53 @@ class Session extends ConsumerStatefulWidget {
 
 class _SessionState extends ConsumerState<Session> {
   Future<CourseSessionData>? future;
+
+  Future<void> uploadMaterial(int sessionId) async {
+    final result = await FilePicker.pickFiles();
+    if (result == null) return;
+    final file = result.files.first;
+    if (file.path == null) return;
+
+    final apiUrl = ref.read(apiProvider).value;
+    final token = ref.read(authProvider).value;
+
+    // Get Presign
+    final presignResponse = await http.post(
+      Uri.parse('$apiUrl/file/presign'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'name': file.name}),
+    );
+    final presignData = jsonDecode(presignResponse.body);
+    final uploadUrl = presignData['clientUrl'];
+    final key = presignData['key'];
+
+    // Upload Directly to S3
+    final bytes = await File(file.path!).readAsBytes();
+    await http.put(Uri.parse(uploadUrl), body: bytes);
+
+    // Confirm (Refreshes S3)
+    await http.post(
+      Uri.parse('$apiUrl/file/confirm/$key'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    // Link to Session
+    await http.post(
+      Uri.parse('$apiUrl/session/$sessionId/files'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'fileId': key}),
+    );
+
+    // Refresh
+    setState(() => future = null);
+  }
+
   @override
   Widget build(BuildContext context) {
     final CourseSessionData data = widget.data;
@@ -517,6 +572,14 @@ class _SessionState extends ConsumerState<Session> {
                     if (data.files!.isNotEmpty) Text("Materials: "),
                     ...?data.files?.map((x) => SessionMaterial(data: x)),
                     if (data.files!.isNotEmpty) Divider(),
+                    if (ref.read(userInfoProvider).value?.role ==
+                        'Teacher') ...[
+                      TextButton.icon(
+                        onPressed: () => uploadMaterial(data.id),
+                        icon: Icon(Icons.upload_file),
+                        label: Text("Add Material"),
+                      ),
+                    ],
                   ],
                 ),
               ),

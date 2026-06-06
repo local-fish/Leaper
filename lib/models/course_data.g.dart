@@ -12,7 +12,7 @@ CourseData _$CourseDataFromJson(Map<String, dynamic> json) => CourseData(
   studentCount: (json['studentCount'] as num).toInt(),
   sessionCount: (json['sessionCount'] as num).toInt(),
   lecturers: (json['lecturers'] as List<dynamic>?)
-      ?.map((e) => CoursePersonData.fromJson(e as Map<String, dynamic>))
+      ?.map((e) => CoursePersonHeader.fromJson(e as Map<String, dynamic>))
       .toList(),
 );
 
@@ -24,6 +24,15 @@ Map<String, dynamic> _$CourseDataToJson(CourseData instance) =>
       'sessionCount': instance.sessionCount,
       'lecturers': instance.lecturers,
     };
+
+CoursePersonHeader _$CoursePersonHeaderFromJson(Map<String, dynamic> json) =>
+    CoursePersonHeader(
+      id: (json['id'] as num).toInt(),
+      name: json['name'] as String,
+    );
+
+Map<String, dynamic> _$CoursePersonHeaderToJson(CoursePersonHeader instance) =>
+    <String, dynamic>{'id': instance.id, 'name': instance.name};
 
 CoursePersonData _$CoursePersonDataFromJson(Map<String, dynamic> json) =>
     CoursePersonData(

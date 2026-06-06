@@ -77,7 +77,9 @@ class _CourseState extends ConsumerState<Course> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Something went wrong'));
+                    return Center(
+                      child: Text('Something went wrong ${snapshot.error}'),
+                    );
                   }
                   final course = snapshot.data!;
                   var filtered = course
