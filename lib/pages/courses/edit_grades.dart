@@ -234,6 +234,7 @@ class _EditGradeState extends ConsumerState<EditGrades> {
               ),
             ),
           ),
+          SizedBox(height: 12),
           Expanded(
             child: FutureBuilder<GradeList>(
               future: _gradesFuture,
@@ -303,3 +304,4 @@ class _EditGradeState extends ConsumerState<EditGrades> {
     );
   }
 }
+
