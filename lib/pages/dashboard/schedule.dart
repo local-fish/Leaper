@@ -191,81 +191,75 @@ class _ScheduleState extends ConsumerState<Schedule> {
           ),
           DraggableScrollableSheet(
             initialChildSize: _sheetInitialSize, // how much it shows by default
-            builder: (context, scrollController) => Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(32),
-                  topRight: Radius.circular(32),
-                ),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Color(0x665A5E75),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(32),
-                        topRight: Radius.circular(32),
-                      ),
-                      border: Border(
-                        top: BorderSide(color: Colors.white, width: 1),
-                        left: BorderSide(color: Colors.white, width: 1),
-                        right: BorderSide(color: Colors.white, width: 1),
-                      ),
+            builder: (context, scrollController) => ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(32),
+                topRight: Radius.circular(32),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Color(0x665A5E75),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(32),
+                      topRight: Radius.circular(32),
                     ),
-                    child: CustomScrollView(
-                      controller: scrollController,
-                      slivers: [
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              top: 8,
-                              left: 20,
-                              right: 20,
+                    border: Border(
+                      top: BorderSide(color: Colors.white, width: 1),
+                      left: BorderSide(color: Colors.white, width: 1),
+                      right: BorderSide(color: Colors.white, width: 1),
+                    ),
+                  ),
+                  child: CustomScrollView(
+                    controller: scrollController,
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 8, left: 20, right: 20),
+                          child: Text(
+                            DateFormat(
+                              'dd MMMM yyyy',
+                            ).format(_selectedDay ?? _focusedDay),
+                            style: GoogleFonts.montserrat(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: FontSizes.medium,
                             ),
+                          ),
+                        ),
+                      ),
+                      if (selectedEvents.isEmpty)
+                        SliverFillRemaining(
+                          child: Center(
                             child: Text(
-                              DateFormat(
-                                'dd MMMM yyyy',
-                              ).format(_selectedDay ?? _focusedDay),
+                              "No Events on this day",
+                              textAlign: TextAlign.center,
                               style: GoogleFonts.montserrat(
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: FontSizes.medium,
                               ),
                             ),
                           ),
                         ),
-                        if (selectedEvents.isEmpty)
-                          SliverFillRemaining(
-                            child: Center(
-                              child: Text(
-                                "No Events on this day",
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.montserrat(
-                                  color: Colors.white,
-                                ),
+                      SliverPadding(
+                        padding: EdgeInsets.only(
+                          left: 20,
+                          right: 20,
+                          bottom: 20,
+                        ),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) => Padding(
+                              padding: EdgeInsets.only(bottom: 12),
+                              child: EventContainer(
+                                item: selectedEvents[index],
                               ),
                             ),
-                          ),
-                        SliverPadding(
-                          padding: EdgeInsets.only(
-                            left: 20,
-                            right: 20,
-                            bottom: 20,
-                          ),
-                          sliver: SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) => Padding(
-                                padding: EdgeInsets.only(bottom: 12),
-                                child: EventContainer(
-                                  item: selectedEvents[index],
-                                ),
-                              ),
-                              childCount: selectedEvents.length,
-                            ),
+                            childCount: selectedEvents.length,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
