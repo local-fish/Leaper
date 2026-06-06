@@ -6,6 +6,7 @@ import 'package:leaper/core/components/gesture_wrapper.dart';
 import 'package:leaper/core/routes.dart';
 import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
+import 'package:leaper/providers/course_cache_provider.dart';
 import 'package:leaper/providers/user_info_provider.dart';
 
 void main() async {
@@ -74,6 +75,8 @@ class AuthCheck extends ConsumerWidget {
           if (response.statusCode == 401) {
             ref.read(authProvider.notifier).logout();
             ref.read(userInfoProvider.notifier).logout();
+            ref.invalidate(coursesCacheProvider);
+            ref.invalidate(coursesCacheTimeProvider);
           } else {
             Navigator.pushReplacementNamed(context, '/main');
           }
@@ -82,6 +85,8 @@ class AuthCheck extends ConsumerWidget {
           if (!context.mounted) return;
           ref.read(authProvider.notifier).logout();
           ref.read(userInfoProvider.notifier).logout();
+          ref.invalidate(coursesCacheProvider);
+          ref.invalidate(coursesCacheTimeProvider);
           Navigator.pushReplacementNamed(context, '/login');
         });
 

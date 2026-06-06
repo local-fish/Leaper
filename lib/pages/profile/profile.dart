@@ -8,6 +8,7 @@ import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
+import 'package:leaper/providers/course_cache_provider.dart';
 import 'package:leaper/providers/user_info_provider.dart';
 
 class Profile extends ConsumerWidget {
@@ -78,6 +79,8 @@ class Profile extends ConsumerWidget {
                   final nav = Navigator.of(context);
                   await ref.read(userInfoProvider.notifier).logout();
                   await ref.read(authProvider.notifier).logout();
+                  ref.invalidate(coursesCacheProvider);
+                  ref.invalidate(coursesCacheTimeProvider);
                   nav.pushReplacementNamed('/');
                 },
                 child: Text("Log Out"),
