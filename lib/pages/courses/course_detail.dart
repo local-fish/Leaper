@@ -15,6 +15,7 @@ import 'package:leaper/core/components/info_row.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/course_data.dart';
+import 'package:leaper/pages/courses/edit_grades.dart';
 import 'package:leaper/pages/forum/forum.dart';
 import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
@@ -162,6 +163,25 @@ class _CourseDetailState extends ConsumerState<CourseDetail> {
                                 Text("Forum"),
                               ],
                             ),
+                            if (ref.read(userInfoProvider).value?.role ==
+                                'Teacher') ...[
+                              SizedBox(width: 8),
+                              Column(
+                                children: [
+                                  CustomIconButton(
+                                    onPressed: () => Navigator.pushNamed(
+                                      context,
+                                      '/course/grades/edit',
+                                      arguments: EditGradeArgs(
+                                        courseId: args.courseId,
+                                      ),
+                                    ),
+                                    icon: Icons.view_kanban,
+                                  ),
+                                  Text("Grades"),
+                                ],
+                              ),
+                            ],
                             /*
                             Column(
                               children: [

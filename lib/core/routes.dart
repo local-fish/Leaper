@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:leaper/pages/courses/course_detail.dart';
+import 'package:leaper/pages/courses/edit_grades.dart';
 import 'package:leaper/pages/dashboard/course.dart';
 import 'package:leaper/pages/dashboard/grades.dart';
 import 'package:leaper/pages/dashboard/tasks.dart';
@@ -24,6 +25,7 @@ final Map<String, WidgetBuilder> routes = {
 
   // Course Root
   '/course/detail': (context) => CourseDetail(),
+  '/course/grades/edit': (context) => EditGrades(),
 
   // Forum
   '/forum': (context) => Forum(),

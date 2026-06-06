@@ -6,12 +6,16 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:leaper/core/components/back_nav_heading.dart';
 import 'package:leaper/core/components/heading_card.dart';
+import 'package:leaper/core/components/info_grid.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
+import 'package:leaper/models/course_data.dart';
 import 'package:leaper/models/grade_data.dart';
 import 'package:leaper/pages/courses/course_detail.dart';
+import 'package:leaper/pages/courses/edit_grades.dart';
 import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
+import 'package:leaper/providers/user_info_provider.dart';
 
 class Grades extends ConsumerStatefulWidget {
   const Grades({super.key});
@@ -22,34 +26,53 @@ class Grades extends ConsumerStatefulWidget {
 class _GradesState extends ConsumerState<Grades> {
   String _query = "";
   Future<List<GradeData>>? gradesFuture;
+  Future<List<CourseData>>? coursesFuture;
 
   @override
   void initState() {
     super.initState();
+    final isTeacher = ref.read(userInfoProvider).value?.role == 'Teacher';
+    if (isTeacher) {
+      coursesFuture = fetchCourses();
+    } else {
+      gradesFuture = fetchGrades();
+    }
   }
 
-  Future<List<GradeData>> fetchGrades(WidgetRef ref) async {
+  Future<List<GradeData>> fetchGrades() async {
     final response = await http.get(
       Uri.parse('${ref.read(apiProvider).value}/grades'),
       headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
     );
-
     if (response.statusCode == 200) {
       final list = jsonDecode(response.body) as List;
-
       return list.map((e) => GradeData.fromJson(e)).toList();
     } else {
       throw Exception('Failed to fetch grades');
     }
   }
 
+  Future<List<CourseData>> fetchCourses() async {
+    final response = await http.get(
+      Uri.parse('${ref.read(apiProvider).value}/courses'),
+      headers: {'Authorization': 'Bearer ${ref.read(authProvider).value}'},
+    );
+    if (response.statusCode == 200) {
+      final list = jsonDecode(response.body) as List;
+      return CourseData.fromJsonList(list);
+    } else {
+      throw Exception('Failed to fetch courses');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isTeacher = ref.read(userInfoProvider).value?.role == 'Teacher';
     return ScaffoldBackground(
       child: Center(
         child: Column(
           children: [
-            BackNavHeading(heading: "Grades"),
+            BackNavHeading(heading: isTeacher ? "Grade Editor" : "Grades"),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 8),
               child: TextField(
@@ -59,6 +82,7 @@ class _GradesState extends ConsumerState<Grades> {
                   prefixIcon: Icon(Icons.search),
                   filled: true,
                   fillColor: Colors.white,
+                  contentPadding: EdgeInsets.symmetric(vertical: 4),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(32),
                     borderSide: BorderSide.none,
@@ -67,35 +91,98 @@ class _GradesState extends ConsumerState<Grades> {
               ),
             ),
             Expanded(
-              child: FutureBuilder<List<GradeData>>(
-                future: fetchGrades(ref),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Something went wrong'));
-                  }
-                  final grades = snapshot.data!
-                      .where((g) => g.components.isNotEmpty)
-                      .where(
-                        (g) => g.courseName.toLowerCase().contains(
-                          _query.toLowerCase(),
-                        ),
-                      )
-                      .toList()
-                      .toList();
-                  if (grades.isEmpty) {
-                    return Center(
-                      child: Text("You have no courses with grades!"),
-                    );
-                  } else {
-                    return Padding(
-                      padding: EdgeInsets.all(8),
-                      child: GradeListItem(items: grades),
-                    );
-                  }
-                },
-              ),
+              child: isTeacher
+                  ? FutureBuilder<List<CourseData>>(
+                      future: coursesFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(child: Text('Something went wrong'));
+                        }
+                        final courses = snapshot.data!
+                            .where(
+                              (c) => c.name.toLowerCase().contains(
+                                _query.toLowerCase(),
+                              ),
+                            )
+                            .toList();
+                        if (courses.isEmpty) {
+                          return Center(child: Text("You have no courses!"));
+                        }
+                        return Padding(
+                          padding: EdgeInsets.all(8),
+                          child: ListView.separated(
+                            itemCount: courses.length,
+                            separatorBuilder: (_, __) => SizedBox(height: 12),
+                            itemBuilder: (context, index) => GestureDetector(
+                              onTap: () => Navigator.pushNamed(
+                                context,
+                                '/course/grades/edit',
+                                arguments: EditGradeArgs(
+                                  courseId: courses[index].id,
+                                ),
+                              ),
+                              child: HeadingCard(
+                                heading: Padding(
+                                  padding: EdgeInsets.only(left: 12),
+                                  child: Text(
+                                    courses[index].name,
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: FontSizes.small,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                content: InfoGrid(
+                                  fields: [
+                                    InfoField(
+                                      label: "Students",
+                                      value: courses[index].studentCount
+                                          .toString(),
+                                    ),
+                                    InfoField(
+                                      label: "Sessions",
+                                      value: courses[index].sessionCount
+                                          .toString(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  : FutureBuilder<List<GradeData>>(
+                      future: gradesFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(child: Text('Something went wrong'));
+                        }
+                        final grades = snapshot.data!
+                            .where((g) => g.components.isNotEmpty)
+                            .where(
+                              (g) => g.courseName.toLowerCase().contains(
+                                _query.toLowerCase(),
+                              ),
+                            )
+                            .toList();
+                        if (grades.isEmpty) {
+                          return Center(
+                            child: Text("You have no courses with grades!"),
+                          );
+                        }
+                        return Padding(
+                          padding: EdgeInsets.all(8),
+                          child: GradeListItem(items: grades),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
