@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:leaper/core/components/back_nav_heading.dart';
 import 'package:leaper/core/components/scaffold_background.dart';
+import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
 import 'package:http/http.dart' as http;
@@ -110,44 +112,73 @@ class _ForumNewPostState extends ConsumerState<ForumNewPost> {
 
   @override
   Widget build(BuildContext context) {
+    if (_args == null) return const SizedBox.shrink();
     return ScaffoldBackground(
       child: Column(
         children: [
-          BackNavHeading(
-            heading: _args!.isEditing ? "Edit Post" : "Create New Post",
+          Row(
+            children: [
+              BackButton(color: Colors.black),
+              Expanded(
+                child: Text(
+                  _args!.isEditing ? "Edit Post" : "New Post",
+                  style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(right: 12),
+                child: _isLoading
+                    ? CircularProgressIndicator()
+                    : TextButton(
+                        onPressed: _args!.isEditing ? submitEdit : submitPost,
+                        child: Text(
+                          _args!.isEditing ? "Save" : "Post",
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w600,
+                            fontSize: FontSizes.small,
+                          ),
+                        ),
+                      ),
+              ),
+            ],
           ),
           Expanded(
             child: Padding(
-              padding: EdgeInsets.all(8),
+              padding: EdgeInsets.all(16),
               child: Column(
                 children: [
                   TextField(
                     controller: _titleController,
-                    decoration: InputDecoration(labelText: "Title"),
+                    style: GoogleFonts.montserrat(
+                      fontSize: FontSizes.large,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: "Title",
+                      border: InputBorder.none,
+                      hintStyle: GoogleFonts.montserrat(
+                        fontSize: FontSizes.large,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black45,
+                      ),
+                    ),
                   ),
-                  SizedBox(height: 12),
+                  Divider(),
                   Expanded(
                     child: TextField(
                       controller: _bodyController,
                       maxLines: null,
                       expands: true,
                       textAlignVertical: TextAlignVertical.top,
+                      style: GoogleFonts.montserrat(fontSize: FontSizes.small),
                       decoration: InputDecoration(
-                        labelText: "Body",
-                        alignLabelWithHint: true,
+                        hintText: "Write something...",
+                        border: InputBorder.none,
+                        hintStyle: GoogleFonts.montserrat(
+                          fontSize: FontSizes.small,
+                          color: Colors.black45,
+                        ),
                       ),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isLoading
-                          ? null
-                          : (_args!.isEditing ? submitEdit : submitPost),
-                      child: _isLoading
-                          ? CircularProgressIndicator()
-                          : Text(_args!.isEditing ? "Edit" : "Post"),
                     ),
                   ),
                 ],

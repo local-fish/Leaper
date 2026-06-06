@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:leaper/core/components/back_nav_heading.dart';
+import 'package:leaper/core/components/scaffold_background.dart';
 import 'package:leaper/core/styles/text_styles/font_sizes.dart';
 import 'package:leaper/models/forum_data.dart';
 import 'package:leaper/providers/api_provider.dart';
@@ -158,194 +159,183 @@ class _ForumPostState extends ConsumerState<ForumPost> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Container(
-          decoration: BoxDecoration(color: Color(0xFFd3d7df)),
-          child: Column(
-            children: [
-              BackNavHeading(heading: "Post"),
-              FutureBuilder(
-                future: forumData,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Column(
-                      children: [Center(child: CircularProgressIndicator())],
-                    );
-                  } else if (snapshot.hasError) {
-                    return Column(
-                      children: [
-                        Center(
-                          child: Text("Something went wrong ${snapshot.error}"),
-                        ),
-                      ],
-                    );
-                  }
-                  final data = snapshot.data!;
-                  return Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: onRefresh,
-                      child: SingleChildScrollView(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minWidth: double.infinity,
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    minWidth: double.infinity,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        data.title,
-                                        style: GoogleFonts.montserrat(
-                                          fontSize: FontSizes.medium,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      Text("Posted by ${data.user.name}"),
-                                      Text(
-                                        "Posted on ${DateFormat('dd MMM yyyy • HH:mm:ss').format(data.time)}",
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Divider(color: Color(0xFFAAAAAA)),
-                                Text(data.body ?? ""),
-                                Divider(color: Color(0xFFAAAAAA)),
-                                if (data.comments! > 0) ...[
+    return ScaffoldBackground(
+      child: Column(
+        children: [
+          BackNavHeading(heading: "Post"),
+          FutureBuilder(
+            future: forumData,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Column(
+                  children: [Center(child: CircularProgressIndicator())],
+                );
+              } else if (snapshot.hasError) {
+                return Column(
+                  children: [
+                    Center(
+                      child: Text("Something went wrong ${snapshot.error}"),
+                    ),
+                  ],
+                );
+              }
+              final data = snapshot.data!;
+              return Expanded(
+                child: RefreshIndicator(
+                  onRefresh: onRefresh,
+                  child: SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minWidth: double.infinity),
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minWidth: double.infinity,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                                   Text(
-                                    "Comments",
+                                    data.title,
                                     style: GoogleFonts.montserrat(
-                                      fontSize: FontSizes.small,
+                                      fontSize: FontSizes.medium,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                  FutureBuilder(
-                                    future: commentData,
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return Column(
-                                          children: [
-                                            Center(
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            ),
-                                          ],
-                                        );
-                                      } else if (snapshot.hasError) {
-                                        return Column(
-                                          children: [
-                                            Center(
-                                              child: Text(
-                                                "Something went wrong ${snapshot.error}",
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      }
-                                      final commentData = snapshot.data!;
-                                      return Column(
-                                        key: ValueKey(_refreshKey),
-                                        children: commentData
-                                            .expand(
-                                              (x) => {
-                                                CommentWidget(
-                                                  item: x,
-                                                  root: data,
-                                                  onReply: setReplyTarget,
-                                                  onRefresh: onRefresh,
-                                                  onEdit: onEdit,
-                                                ),
-
-                                                Divider(
-                                                  color: Color(0xFFAAAAAA),
-                                                ),
-                                              },
-                                            )
-                                            .toList(),
-                                      );
-                                    },
+                                  Text("Posted by ${data.user.name}"),
+                                  Text(
+                                    "Posted on ${DateFormat('dd MMM yyyy • HH:mm:ss').format(data.time)}",
                                   ),
                                 ],
-                              ],
+                              ),
                             ),
-                          ),
+                            Divider(color: Color(0xFFAAAAAA)),
+                            Text(data.body ?? ""),
+                            Divider(color: Color(0xFFAAAAAA)),
+                            if (data.comments! > 0) ...[
+                              Text(
+                                "Comments",
+                                style: GoogleFonts.montserrat(
+                                  fontSize: FontSizes.small,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              FutureBuilder(
+                                future: commentData,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Column(
+                                      children: [
+                                        Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      ],
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return Column(
+                                      children: [
+                                        Center(
+                                          child: Text(
+                                            "Something went wrong ${snapshot.error}",
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                  final commentData = snapshot.data!;
+                                  return Column(
+                                    key: ValueKey(_refreshKey),
+                                    children: commentData
+                                        .expand(
+                                          (x) => {
+                                            CommentWidget(
+                                              item: x,
+                                              root: data,
+                                              onReply: setReplyTarget,
+                                              onRefresh: onRefresh,
+                                              onEdit: onEdit,
+                                            ),
+
+                                            Divider(color: Color(0xFFAAAAAA)),
+                                          },
+                                        )
+                                        .toList(),
+                                  );
+                                },
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Color(0xFFAAAAAA))),
+                  ),
                 ),
-                child: Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Column(
-                    children: [
-                      if (_replyTargetUser != null)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Replying to $_replyTargetUser"),
-                            IconButton(
-                              onPressed: () => setReplyTarget(null, null),
-                              icon: Icon(Icons.close),
-                            ),
-                          ],
+              );
+            },
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: Color(0xFFAAAAAA))),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(8),
+              child: Column(
+                children: [
+                  if (_replyTargetUser != null)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Replying to $_replyTargetUser"),
+                        IconButton(
+                          onPressed: () => setReplyTarget(null, null),
+                          icon: Icon(Icons.close),
                         ),
-                      if (_editTarget != null)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Editing comment"),
-                            IconButton(
-                              onPressed: () => onEdit(null),
-                              icon: Icon(Icons.close),
-                            ),
-                          ],
+                      ],
+                    ),
+                  if (_editTarget != null)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Editing comment"),
+                        IconButton(
+                          onPressed: () => onEdit(null),
+                          icon: Icon(Icons.close),
                         ),
+                      ],
+                    ),
 
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _commentController,
-                              maxLines: null,
-                              minLines: 1,
-                              decoration: InputDecoration(
-                                hintText: "Add a comment...",
-                              ),
-                              style: TextStyle(fontSize: FontSizes.small),
-                            ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _commentController,
+                          maxLines: null,
+                          minLines: 1,
+                          decoration: InputDecoration(
+                            hintText: "Add a comment...",
                           ),
-                          IconButton(
-                            icon: Icon(Icons.send),
-                            onPressed: () => {
-                              _editTarget == null
-                                  ? postComment(ref)
-                                  : editComment(ref),
-                            },
-                          ),
-                        ],
+                          style: TextStyle(fontSize: FontSizes.small),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.send),
+                        onPressed: () => {
+                          _editTarget == null
+                              ? postComment(ref)
+                              : editComment(ref),
+                        },
                       ),
                     ],
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

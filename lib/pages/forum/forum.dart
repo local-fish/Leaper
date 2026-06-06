@@ -76,6 +76,7 @@ class _ForumState extends ConsumerState<Forum> {
                 prefixIcon: Icon(Icons.search),
                 filled: true,
                 fillColor: Colors.white,
+                contentPadding: EdgeInsets.symmetric(vertical: 4),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(32),
                   borderSide: BorderSide.none,
