@@ -78,6 +78,7 @@ class _EditGradeState extends ConsumerState<EditGrades> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -304,4 +305,3 @@ class _EditGradeState extends ConsumerState<EditGrades> {
     );
   }
 }
-

@@ -196,6 +196,7 @@ class ForumListCard extends ConsumerWidget {
         if (!ctx.mounted) return;
 
         showModalBottomSheet(
+          useSafeArea: true,
           context: ctx,
           builder: (context) => Column(
             mainAxisSize: MainAxisSize.min,
