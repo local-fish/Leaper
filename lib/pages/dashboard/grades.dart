@@ -65,6 +65,10 @@ class _GradesState extends ConsumerState<Grades> {
     }
   }
 
+  Future<void> _onRefresh() async {
+    setState(() => gradesFuture = fetchGrades());
+  }
+
   @override
   Widget build(BuildContext context) {
     final isTeacher = ref.read(userInfoProvider).value?.role == 'Teacher';
@@ -177,9 +181,12 @@ class _GradesState extends ConsumerState<Grades> {
                             child: Text("You have no courses with grades!"),
                           );
                         }
-                        return Padding(
-                          padding: EdgeInsets.all(8),
-                          child: GradeListItem(items: grades),
+                        return RefreshIndicator(
+                          onRefresh: _onRefresh,
+                          child: Padding(
+                            padding: EdgeInsets.all(8),
+                            child: GradeListItem(items: grades),
+                          ),
                         );
                       },
                     ),
