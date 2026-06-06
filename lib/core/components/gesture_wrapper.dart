@@ -76,7 +76,11 @@ class _GestureWrapperState extends State<GestureWrapper> {
       },
       onPointerUp: (event) {
         _pointers.remove(event.pointer);
-        _triggered = false;
+        if (_pointers.isEmpty) _triggered = false;
+      },
+      onPointerCancel: (event) {
+        _pointers.remove(event.pointer);
+        if (_pointers.isEmpty) _triggered = false;
       },
       child: widget.child,
     );
