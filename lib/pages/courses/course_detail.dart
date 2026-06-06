@@ -470,12 +470,16 @@ class _SessionState extends ConsumerState<Session> {
       body: jsonEncode({'name': file.name}),
     );
     final presignData = jsonDecode(presignResponse.body);
-    final uploadUrl = presignData['clientUrl'];
+    final uploadUrl = presignData['url'];
     final key = presignData['key'];
 
     // Upload Directly to S3
     final bytes = await File(file.path!).readAsBytes();
-    await http.put(Uri.parse(uploadUrl), body: bytes);
+    await http.put(
+      Uri.parse(uploadUrl),
+      headers: {'Content-Type': 'application/octet-stream'},
+      body: bytes,
+    );
 
     // Confirm (Refreshes S3)
     await http.post(
@@ -494,7 +498,9 @@ class _SessionState extends ConsumerState<Session> {
     );
 
     // Refresh
-    setState(() => future = null);
+    setState(() {
+      future = widget.fetchSessionMaterials(ref, widget.data.id);
+    });
   }
 
   @override
@@ -555,7 +561,6 @@ class _SessionState extends ConsumerState<Session> {
         FutureBuilder(
           future: future,
           builder: (context, snapshot) {
-            // TODO: this should probably be standardized into a component but honestly i'm too far deep to do that
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
@@ -603,7 +608,6 @@ class SessionMaterial extends ConsumerWidget {
     request.headers['Authorization'] = 'Bearer ${ref.read(authProvider).value}';
     request.followRedirects = false;
     final response = await client.send(request);
-
     if (response.statusCode == 301 || response.statusCode == 302) {
       final redirectUrl = response.headers['location']!;
       await launchUrl(Uri.parse(redirectUrl));
@@ -614,7 +618,12 @@ class SessionMaterial extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: () => downloadFile(ref, data.id),
-      child: Row(children: [Icon(Icons.file_download), Text(data.name)]),
+      child: Row(
+        children: [
+          Icon(Icons.file_download),
+          Expanded(child: Text(data.name, overflow: TextOverflow.ellipsis)),
+        ],
+      ),
     );
   }
 }
