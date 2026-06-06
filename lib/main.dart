@@ -38,8 +38,16 @@ class MyApp extends StatelessWidget {
           scrolledUnderElevation: 0,
         ),
       ),
-      builder: (context, child) =>
-          GestureWrapper(navigatorKey: navigatorKey, child: child!),
+      builder: (context, child) => Consumer(
+        builder: (context, ref, _) {
+          final isLoggedIn = ref.watch(authProvider).value != null;
+          return GestureWrapper(
+            navigatorKey: navigatorKey,
+            isLoggedIn: isLoggedIn,
+            child: child!,
+          );
+        },
+      ),
     );
   }
 }

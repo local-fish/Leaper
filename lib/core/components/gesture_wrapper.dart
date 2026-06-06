@@ -16,10 +16,12 @@ import 'package:leaper/providers/user_info_provider.dart';
 class GestureWrapper extends StatefulWidget {
   final Widget child;
   final GlobalKey<NavigatorState> navigatorKey;
+  final bool isLoggedIn;
   const GestureWrapper({
     super.key,
     required this.child,
     required this.navigatorKey,
+    required this.isLoggedIn,
   });
 
   @override
@@ -34,16 +36,17 @@ class _GestureWrapperState extends State<GestureWrapper> {
   @override
   void initState() {
     super.initState();
-    SystemChannels.navigation.setMethodCallHandler((call) async {
-      if (call.method == 'popRoute' && _overlayEntry != null) {
-        _hideOverlay();
-        return;
-      }
-    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   void _showOverlay() {
     if (_overlayEntry != null) return; // already open
+    if (!widget.isLoggedIn) return;
+
     _overlayEntry = OverlayEntry(
       builder: (context) => SearchOverlay(onClose: _hideOverlay),
     );
