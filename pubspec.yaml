@@ -47,7 +47,13 @@ dependencies:
   flutter_secure_storage: ^10.2.0
   file_picker: ^11.0.2
 
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/apk-icon.png"
+
 dev_dependencies:
+  flutter_launcher_icons: ^0.14.0
   flutter_test:
     sdk: flutter
 
