@@ -82,136 +82,160 @@ class _EditGradeState extends ConsumerState<EditGrades> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom:
-              MediaQuery.of(context).viewInsets.bottom +
-              MediaQuery.of(context).padding.bottom +
-              16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // drag handle
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Color(0xFFDDDDDD),
-                borderRadius: BorderRadius.circular(2),
+      builder: (context) {
+        bool isLoading = false;
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom:
+                    MediaQuery.of(context).viewInsets.bottom +
+                    MediaQuery.of(context).padding.bottom +
+                    16,
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  student.user.name,
-                  style: GoogleFonts.montserrat(
-                    fontSize: FontSizes.medium,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 12),
-            ...List.generate(
-              data.components.length,
-              (i) => Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            data.components[i].name,
-                            style: GoogleFonts.montserrat(
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 80,
-                          child: TextField(
-                            controller: controllers[i],
-                            keyboardType: TextInputType.number,
-                            textAlign: TextAlign.center,
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            onChanged: (value) {
-                              final val = double.tryParse(value);
-                              if (val != null && val > 100) {
-                                controllers[i].text = '100';
-                                controllers[i].selection =
-                                    TextSelection.fromPosition(
-                                      TextPosition(
-                                        offset: controllers[i].text.length,
-                                      ),
-                                    );
-                              } else if (val != null && val < 0) {
-                                controllers[i].text = '0';
-                                controllers[i].selection =
-                                    TextSelection.fromPosition(
-                                      TextPosition(
-                                        offset: controllers[i].text.length,
-                                      ),
-                                    );
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 12),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    for (int i = 0; i < data.components.length; i++) {
-                      final val = double.tryParse(controllers[i].text);
-                      await editGrade(
-                        data.components[i].id,
-                        student.user.id,
-                        val,
-                      );
-                    }
-                    if (context.mounted) {
-                      Navigator.pop(context);
-                      setState(() => _gradesFuture = fetchGrades());
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 12),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Color(0xFFDDDDDD),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  child: Text(
-                    "Save",
-                    style: GoogleFonts.montserrat(fontWeight: FontWeight.w600),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        student.user.name,
+                        style: GoogleFonts.montserrat(
+                          fontSize: FontSizes.medium,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  SizedBox(height: 12),
+                  ...List.generate(
+                    data.components.length,
+                    (i) => Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              data.components[i].name,
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 80,
+                            child: TextField(
+                              controller: controllers[i],
+                              keyboardType: TextInputType.number,
+                              textAlign: TextAlign.center,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onChanged: (value) {
+                                final val = double.tryParse(value);
+                                if (val != null && val > 100) {
+                                  controllers[i].text = '100';
+                                  controllers[i].selection =
+                                      TextSelection.fromPosition(
+                                        TextPosition(
+                                          offset: controllers[i].text.length,
+                                        ),
+                                      );
+                                } else if (val != null && val < 0) {
+                                  controllers[i].text = '0';
+                                  controllers[i].selection =
+                                      TextSelection.fromPosition(
+                                        TextPosition(
+                                          offset: controllers[i].text.length,
+                                        ),
+                                      );
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: isLoading
+                            ? null
+                            : () async {
+                                setSheetState(() => isLoading = true);
+                                for (
+                                  int i = 0;
+                                  i < data.components.length;
+                                  i++
+                                ) {
+                                  final val = double.tryParse(
+                                    controllers[i].text,
+                                  );
+                                  await editGrade(
+                                    data.components[i].id,
+                                    student.user.id,
+                                    val,
+                                  );
+                                }
+                                if (context.mounted) {
+                                  Navigator.pop(context);
+                                  setState(() => _gradesFuture = fetchGrades());
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: isLoading
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Text(
+                                "Save",
+                                style: GoogleFonts.montserrat(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                ],
               ),
-            ),
-            SizedBox(height: 8),
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 

@@ -32,6 +32,7 @@ class _ForumPostState extends ConsumerState<ForumPost> {
   int? _replyTarget;
   String? _replyTargetUser;
   CommentData? _editTarget;
+  bool _isLoading = false;
 
   void setReplyTarget(int? id, String? user) {
     setState(() => _editTarget = null);
@@ -99,28 +100,33 @@ class _ForumPostState extends ConsumerState<ForumPost> {
   }
 
   Future<void> postComment(WidgetRef ref) async {
-    final body = _commentController.text.trim();
-    if (body.isEmpty) return;
+    setState(() => _isLoading = true);
+    try {
+      final body = _commentController.text.trim();
+      if (body.isEmpty) return;
 
-    final response = await http.post(
-      Uri.parse('${ref.read(apiProvider).value}/forum/comment/new'),
-      headers: {
-        'Authorization': 'Bearer ${ref.read(authProvider).value}',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'forumId': _args?.forumId,
-        if (_replyTarget != null) 'parentId': _replyTarget,
-        'body': body,
-      }),
-    );
+      final response = await http.post(
+        Uri.parse('${ref.read(apiProvider).value}/forum/comment/new'),
+        headers: {
+          'Authorization': 'Bearer ${ref.read(authProvider).value}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'forumId': _args?.forumId,
+          if (_replyTarget != null) 'parentId': _replyTarget,
+          'body': body,
+        }),
+      );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      _commentController.clear();
-      setState(() => _replyTarget = null);
-      await onRefresh();
-    } else {
-      throw Exception('Failed to post comment');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _commentController.clear();
+        setState(() => _replyTarget = null);
+        await onRefresh();
+      } else {
+        throw Exception('Failed to post comment');
+      }
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -322,12 +328,16 @@ class _ForumPostState extends ConsumerState<ForumPost> {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.send),
-                        onPressed: () => {
-                          _editTarget == null
-                              ? postComment(ref)
-                              : editComment(ref),
-                        },
+                        icon: _isLoading
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Icon(Icons.send),
+                        onPressed: _isLoading ? null : () => postComment(ref),
                       ),
                     ],
                   ),
