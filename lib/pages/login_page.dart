@@ -46,7 +46,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         Uri.parse('$endpoint/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'username': _usernameController.text,
+          'email': _usernameController.text,
           'password': _passwordController.text,
         }),
       );
@@ -60,7 +60,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         navigator.pushReplacementNamed('/');
       } else {
         scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text("Invalid username or password!")),
+          SnackBar(content: Text("Invalid email or password!")),
         );
       }
     } catch (e) {
@@ -126,7 +126,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         controller: _usernameController,
                         decoration: InputDecoration(
                           icon: Icon(Icons.person),
-                          hintText: "Username or Email",
+                          hintText: "Email",
                           border: InputBorder.none,
                           hintStyle: InputStyle.hintText,
                         ),
