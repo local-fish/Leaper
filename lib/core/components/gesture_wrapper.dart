@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:leaper/models/course_data.dart';
 import 'package:leaper/pages/courses/course_detail.dart';
@@ -29,6 +30,17 @@ class _GestureWrapperState extends State<GestureWrapper> {
   final Map<int, Offset> _pointers = {};
   bool _triggered = false;
   OverlayEntry? _overlayEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    SystemChannels.navigation.setMethodCallHandler((call) async {
+      if (call.method == 'popRoute' && _overlayEntry != null) {
+        _hideOverlay();
+        return;
+      }
+    });
+  }
 
   void _showOverlay() {
     if (_overlayEntry != null) return; // already open
