@@ -20,6 +20,7 @@ import 'package:leaper/pages/forum/forum.dart';
 import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
 import 'package:leaper/providers/user_info_provider.dart';
+import 'package:mime/mime.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CourseDetailArgs {
@@ -480,6 +481,8 @@ class _SessionState extends ConsumerState<Session> {
     final apiUrl = ref.read(apiProvider).value;
     final token = ref.read(authProvider).value;
 
+    final mimeType = lookupMimeType(file.path!) ?? 'application/octet-stream';
+
     // Get Presign
     final presignResponse = await http.post(
       Uri.parse('$apiUrl/file/presign'),
@@ -487,7 +490,7 @@ class _SessionState extends ConsumerState<Session> {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
-      body: jsonEncode({'name': file.name}),
+      body: jsonEncode({'name': file.name, 'contentType': mimeType}),
     );
     final presignData = jsonDecode(presignResponse.body);
     final uploadUrl = presignData['url'];
@@ -497,7 +500,7 @@ class _SessionState extends ConsumerState<Session> {
     final bytes = await File(file.path!).readAsBytes();
     await http.put(
       Uri.parse(uploadUrl),
-      headers: {'Content-Type': 'application/octet-stream'},
+      headers: {'Content-Type': mimeType},
       body: bytes,
     );
 
