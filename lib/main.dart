@@ -10,7 +10,6 @@ import 'package:leaper/providers/user_info_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final coursesCacheProvider = StateProvider<List<CourseData>>((ref) => []);
   runApp(ProviderScope(child: MyApp()));
 }
 
