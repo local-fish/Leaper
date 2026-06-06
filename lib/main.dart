@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:leaper/core/components/gesture_wrapper.dart';
 import 'package:leaper/core/routes.dart';
 import 'package:leaper/providers/api_provider.dart';
 import 'package:leaper/providers/auth_provider.dart';
@@ -9,6 +10,7 @@ import 'package:leaper/providers/user_info_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final coursesCacheProvider = StateProvider<List<CourseData>>((ref) => []);
   runApp(ProviderScope(child: MyApp()));
 }
 
@@ -17,6 +19,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final navigatorKey = GlobalKey<NavigatorState>();
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.white,
@@ -25,6 +28,7 @@ class MyApp extends StatelessWidget {
       ),
     );
     return MaterialApp(
+      navigatorKey: navigatorKey,
       routes: routes,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF929EC3)),
@@ -34,6 +38,8 @@ class MyApp extends StatelessWidget {
           scrolledUnderElevation: 0,
         ),
       ),
+      builder: (context, child) =>
+          GestureWrapper(navigatorKey: navigatorKey, child: child!),
     );
   }
 }
