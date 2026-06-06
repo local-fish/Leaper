@@ -44,13 +44,15 @@ class _GestureWrapperState extends State<GestureWrapper> {
   }
 
   void _showOverlay() {
-    if (_overlayEntry != null) return; // already open
+    if (_overlayEntry != null) return;
     if (!widget.isLoggedIn) return;
-
-    _overlayEntry = OverlayEntry(
-      builder: (context) => SearchOverlay(onClose: _hideOverlay),
-    );
-    widget.navigatorKey.currentState?.overlay?.insert(_overlayEntry!);
+    showGeneralDialog(
+      context: widget.navigatorKey.currentContext!,
+      barrierDismissible: true,
+      barrierLabel: 'Search',
+      barrierColor: Colors.transparent,
+      pageBuilder: (context, _, __) => SearchOverlay(onClose: _hideOverlay),
+    ).then((_) => _hideOverlay());
   }
 
   void _hideOverlay() {
