@@ -209,10 +209,11 @@ class _SearchOverlayState extends ConsumerState<SearchOverlay>
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _allResults
-        .where((p) => p.title.toLowerCase().contains(_query.toLowerCase()))
-        .toList();
-
+    final filtered = _allResults.where((p) {
+      final words = _query.toLowerCase().split(' ');
+      final combined = '${p.title} ${p.subtitle ?? ''}'.toLowerCase();
+      return words.every((word) => combined.contains(word));
+    }).toList();
     return Material(
       color: Colors.transparent,
       child: FadeTransition(
@@ -244,13 +245,15 @@ class _SearchOverlayState extends ConsumerState<SearchOverlay>
                             focusNode: _focusNode,
                             onChanged: (value) {
                               setState(() => _query = value);
-                              final results = _allResults
-                                  .where(
-                                    (p) => p.title.toLowerCase().contains(
-                                      value.toLowerCase(),
-                                    ),
-                                  )
-                                  .toList();
+                              final results = _allResults.where((p) {
+                                final words = _query.toLowerCase().split(' ');
+                                final combined =
+                                    '${p.title} ${p.subtitle ?? ''}'
+                                        .toLowerCase();
+                                return words.every(
+                                  (word) => combined.contains(word),
+                                );
+                              }).toList();
                               if (results.length == 1) {
                                 _navigate(
                                   context,
