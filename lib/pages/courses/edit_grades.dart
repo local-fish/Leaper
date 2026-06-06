@@ -84,7 +84,10 @@ class _EditGradeState extends ConsumerState<EditGrades> {
       ),
       builder: (context) => Padding(
         padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          bottom:
+              MediaQuery.of(context).viewInsets.bottom +
+              MediaQuery.of(context).padding.bottom +
+              16,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

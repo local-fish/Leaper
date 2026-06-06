@@ -198,38 +198,46 @@ class ForumListCard extends ConsumerWidget {
         showModalBottomSheet(
           useSafeArea: true,
           context: ctx,
-          builder: (context) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: Icon(Icons.edit),
-                title: Text("Edit"),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(
-                    context,
-                    '/forum/post/new',
-                    arguments: ForumNewPostArgs(
-                      courseId: forumData.courseId ?? 0,
-                      isEditing: true,
-                      postId: forumData.id,
-                      body: forumData.body,
-                      title: forumData.title,
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.delete),
-                title: Text("Delete"),
-                onTap: () async {
-                  final ctx = context; // save before async
-                  await deletePost(ref, item.id);
-                  if (!ctx.mounted) return;
-                  Navigator.pop(context);
-                },
-              ),
-            ],
+          builder: (context) => Padding(
+            padding: EdgeInsets.only(
+              bottom:
+                  MediaQuery.of(context).viewInsets.bottom +
+                  MediaQuery.of(context).padding.bottom +
+                  16,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: Icon(Icons.edit),
+                  title: Text("Edit"),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(
+                      context,
+                      '/forum/post/new',
+                      arguments: ForumNewPostArgs(
+                        courseId: forumData.courseId ?? 0,
+                        isEditing: true,
+                        postId: forumData.id,
+                        body: forumData.body,
+                        title: forumData.title,
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.delete),
+                  title: Text("Delete"),
+                  onTap: () async {
+                    final ctx = context; // save before async
+                    await deletePost(ref, item.id);
+                    if (!ctx.mounted) return;
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
           ),
         ).then((_) => onReload());
       },
