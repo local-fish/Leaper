@@ -38,6 +38,7 @@ class MyApp extends StatelessWidget {
           scrolledUnderElevation: 0,
         ),
       ),
+      debugShowCheckedModeBanner: false,
       builder: (context, child) => Consumer(
         builder: (context, ref, _) {
           final isLoggedIn = ref.watch(authProvider).value != null;
