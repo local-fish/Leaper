@@ -21,6 +21,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _urlController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void didChangeDependencies() {
@@ -32,6 +33,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Future<void> handleLogin() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     try {
       if (_urlController.text.trim().isEmpty) {
@@ -67,6 +70,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       scaffoldMessenger.showSnackBar(
         SnackBar(content: Text("Something went wrong! (Check your API Url!)")),
       );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -183,17 +188,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   ),
                   Padding(padding: EdgeInsets.only(top: 8)),
                   ElevatedButton(
-                    onPressed: handleLogin,
+                    onPressed: _isLoading ? null : handleLogin,
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
                         horizontal: 96,
                         vertical: 8,
                       ),
                     ),
-                    child: Text(
-                      "Login",
-                      style: TextStyle(fontSize: FontSizes.medium),
-                    ),
+                    child: _isLoading
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(
+                            "Login",
+                            style: TextStyle(fontSize: FontSizes.medium),
+                          ),
                   ),
                 ],
               ),
