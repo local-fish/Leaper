@@ -57,7 +57,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ref.read(authProvider.notifier).login(token);
         ref.read(apiProvider.notifier).login(endpoint);
         scaffoldMessenger.clearSnackBars();
-        navigator.pushReplacementNamed('/');
+        navigator.pushReplacementNamed('/main');
       } else {
         scaffoldMessenger.showSnackBar(
           SnackBar(content: Text("Invalid email or password!")),
