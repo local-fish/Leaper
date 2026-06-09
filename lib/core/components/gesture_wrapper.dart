@@ -31,7 +31,7 @@ class GestureWrapper extends StatefulWidget {
 class _GestureWrapperState extends State<GestureWrapper> {
   final Map<int, Offset> _pointers = {};
   bool _triggered = false;
-  OverlayEntry? _overlayEntry;
+  bool _isOpen = false;
 
   @override
   void initState() {
@@ -44,8 +44,9 @@ class _GestureWrapperState extends State<GestureWrapper> {
   }
 
   void _showOverlay() {
-    if (_overlayEntry != null) return;
+    if (_isOpen) return;
     if (!widget.isLoggedIn) return;
+    setState(() => _isOpen = true);
     showGeneralDialog(
       context: widget.navigatorKey.currentContext!,
       barrierDismissible: true,
@@ -56,8 +57,7 @@ class _GestureWrapperState extends State<GestureWrapper> {
   }
 
   void _hideOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
+    setState(() => _isOpen = false);
   }
 
   @override
