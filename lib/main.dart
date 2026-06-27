@@ -86,6 +86,7 @@ class AuthCheck extends ConsumerWidget {
             ref.read(userInfoProvider.notifier).logout();
             ref.invalidate(coursesCacheProvider);
             ref.invalidate(coursesCacheTimeProvider);
+            Navigator.pushReplacementNamed(context, '/login');
           } else {
             Navigator.pushReplacementNamed(context, '/main');
           }
