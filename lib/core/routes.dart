@@ -3,7 +3,6 @@ import 'package:leaper/pages/courses/course_detail.dart';
 import 'package:leaper/pages/courses/edit_grades.dart';
 import 'package:leaper/pages/dashboard/course.dart';
 import 'package:leaper/pages/dashboard/grades.dart';
-import 'package:leaper/pages/dashboard/tasks.dart';
 import 'package:leaper/pages/forum/forum.dart';
 import 'package:leaper/pages/forum/forum_new_post.dart';
 import 'package:leaper/pages/forum/forum_post.dart';
@@ -20,7 +19,6 @@ final Map<String, WidgetBuilder> routes = {
   // Subpages
   '/schedule': (context) => Schedule(),
   '/grades': (context) => Grades(),
-  '/tasks': (context) => Tasks(),
   '/course': (context) => Course(),
 
   // Course Root
