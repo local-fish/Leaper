@@ -471,6 +471,7 @@ class Session extends ConsumerStatefulWidget {
 
 class _SessionState extends ConsumerState<Session> {
   Future<CourseSessionData>? future;
+  bool _loading = false;
 
   Future<void> uploadMaterial(int sessionId) async {
     final result = await FilePicker.pickFiles();
@@ -482,6 +483,9 @@ class _SessionState extends ConsumerState<Session> {
     final token = ref.read(authProvider).value;
 
     final mimeType = lookupMimeType(file.path!) ?? 'application/octet-stream';
+    setState(() {
+      _loading = true;
+    });
 
     // Get Presign
     final presignResponse = await http.post(
@@ -523,6 +527,7 @@ class _SessionState extends ConsumerState<Session> {
     // Refresh
     setState(() {
       future = widget.fetchSessionMaterials(ref, widget.data.id);
+      _loading = false;
     });
   }
 
@@ -602,11 +607,13 @@ class _SessionState extends ConsumerState<Session> {
                     if (data.files!.isNotEmpty) Divider(),
                     if (ref.read(userInfoProvider).value?.role ==
                         'Teacher') ...[
-                      TextButton.icon(
-                        onPressed: () => uploadMaterial(data.id),
-                        icon: Icon(Icons.upload_file),
-                        label: Text("Add Material"),
-                      ),
+                      _loading
+                          ? Center(child: CircularProgressIndicator())
+                          : TextButton.icon(
+                              onPressed: () => uploadMaterial(data.id),
+                              icon: Icon(Icons.upload_file),
+                              label: Text("Add Material"),
+                            ),
                     ],
                   ],
                 ),
